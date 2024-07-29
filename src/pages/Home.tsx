@@ -1,8 +1,6 @@
 function Home() {
   return (
-    <div>
-      <h1>Home</h1>
-    </div>
+    <div className="flex-column flex h-full w-full bg-[rgb(0,0,0,0.7)] backdrop-blur-sm "></div>
   );
 }
 

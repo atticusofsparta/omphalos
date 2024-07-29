@@ -8,3 +8,16 @@ export const applyThemePreference = (theme: string) => {
   root.classList.remove(isDark ? LIGHT : DARK);
   root.classList.add(theme);
 };
+
+export function formatArweaveAddress(address: string) {
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+}
+
+export function copyToClipboard(text: string) {
+  const el = document.createElement('textarea');
+  el.value = text;
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+}

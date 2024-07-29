@@ -1,20 +1,32 @@
 import { THEME_TYPES } from '@src/constants';
-import { applyThemePreference } from '@src/utils';
 import { create } from 'zustand';
 
 export type ThemeType = (typeof THEME_TYPES)[keyof typeof THEME_TYPES];
+export type Profile = {
+  name: string;
+  avatar: string;
+};
 
 export type GlobalState = {
-  theme: ThemeType;
+  connecting: boolean;
+  signing: boolean;
+  showProfileMenu: boolean;
+  profile?: Profile;
 };
 
 export type GlobalStateActions = {
-  setTheme: (theme: ThemeType) => void;
+  setConnecting: (connecting: boolean) => void;
+  setSigning: (signing: boolean) => void;
+  setShowProfileMenu: (showProfileMenu: boolean) => void;
+  setProfile: (profile: Profile) => void;
   reset: () => void;
 };
 
 export const initialGlobalState: GlobalState = {
-  theme: THEME_TYPES.DARK,
+  connecting: false,
+  signing: false,
+  showProfileMenu: false,
+  profile: undefined,
 };
 
 export class GlobalStateActionBase implements GlobalStateActions {
@@ -22,9 +34,17 @@ export class GlobalStateActionBase implements GlobalStateActions {
     private set: (props: any) => void,
     private initialGlobalState: GlobalState,
   ) {}
-  setTheme = (theme: ThemeType) => {
-    this.set({ theme });
-    applyThemePreference(theme);
+  setConnecting = (connecting: boolean) => {
+    this.set({ connecting });
+  };
+  setSigning = (signing: boolean) => {
+    this.set({ signing });
+  };
+  setShowProfileMenu = (showProfileMenu: boolean) => {
+    this.set({ showProfileMenu });
+  };
+  setProfile = (profile: Profile | undefined) => {
+    this.set({ profile });
   };
   reset = () => {
     this.set({ ...this.initialGlobalState });
