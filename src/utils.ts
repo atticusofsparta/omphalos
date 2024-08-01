@@ -21,3 +21,11 @@ export function copyToClipboard(text: string) {
   document.execCommand('copy');
   document.body.removeChild(el);
 }
+
+export function safeDecode(json: string) {
+  try {
+    return JSON.parse(json);
+  } catch (e) {
+    return undefined;
+  }
+}

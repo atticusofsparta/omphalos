@@ -1,3 +1,4 @@
+import { connect } from '@permaweb/aoconnect/browser';
 import winston, { createLogger, format, transports } from 'winston';
 
 import { Logger } from '../types/index.js';
@@ -6,6 +7,9 @@ export const THEME_TYPES = {
   LIGHT: 'light',
   DARK: 'dark',
 };
+
+export const PROFILE_REGISTRY_ID =
+  'iySPL7MpiZCvei0DIFzjNOudjbCnHHXf9rPgbXH-T90';
 
 export class DefaultLogger implements Logger {
   private logger: winston.Logger;
@@ -64,3 +68,5 @@ function getLogFormat(logFormat: string) {
     logFormat === 'json' ? format.json() : format.simple(),
   );
 }
+
+export const DEFAULT_AO = connect();

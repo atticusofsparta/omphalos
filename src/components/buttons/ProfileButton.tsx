@@ -20,7 +20,7 @@ function ProfileButton() {
   return (
     <div className="flex flex-row gap-4">
       <div className="flex-column flex gap-5 p-1 text-secondary">
-        <span>{profile?.name ?? formatArweaveAddress(address)}</span>
+        <span>{profile?.DisplayName ?? formatArweaveAddress(address)}</span>
         <span></span>
       </div>
       <Button
@@ -29,9 +29,9 @@ function ProfileButton() {
       >
         <img
           className="rounded-full"
-          src="/images/profile.png"
-          width="50px"
-          height="50px"
+          src="/images/pfps/naturalist-human/4.webp"
+          width="75px"
+          height="75px"
           alt="profile"
         />
       </Button>

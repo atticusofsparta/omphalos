@@ -22,6 +22,6 @@
       "@src/*": ["./src/*"]
     }
   },
-  "include": ["src", "types", "tests"],
+  "include": ["src", "types", "tests", "vite-plugin-raw.d.ts", "lua.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

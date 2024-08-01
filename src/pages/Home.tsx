@@ -1,7 +1,6 @@
 function Home() {
-  return (
-    <div className="flex-column flex h-full w-full bg-[rgb(0,0,0,0.7)] backdrop-blur-sm "></div>
-  );
+  return <div className="flex-column flex h-full w-full"></div>;
 }
+3;
 
 export default Home;

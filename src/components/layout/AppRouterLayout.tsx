@@ -6,15 +6,15 @@ import Notifications from './Notifications';
 
 function AppRouterLayout() {
   return (
-    <div className="scrollbar bg-cyber-garden h-screen w-screen overflow-x-auto overflow-y-hidden bg-cover bg-no-repeat dark:bg-background dark:text-foregroundSubtle">
-      <Navbar />
-      <div className="relative flex h-full flex-row">
-        <Outlet />
-        <div className="flex h-full">
-          <ProfileMenu />
+    <div className="scrollbar h-screen w-screen overflow-x-auto overflow-y-hidden bg-cyber-garden bg-cover bg-no-repeat dark:bg-background dark:text-foregroundSubtle">
+      <div className="h-full bg-[rgb(0,0,0,0.9)]">
+        <Navbar />
+        <div className="relative flex h-full flex-row">
+          <Outlet />
         </div>
-      </div>
-      <Notifications />
+        <Notifications />
+      </div>{' '}
+      <ProfileMenu />
     </div>
   );
 }

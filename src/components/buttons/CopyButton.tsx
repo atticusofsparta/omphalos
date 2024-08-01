@@ -1,8 +1,8 @@
 import { copyToClipboard } from '@src/utils';
-import { useEffect, useState } from 'react';
+import { CSSProperties, useEffect, useState } from 'react';
 import { TbCopy, TbCopyCheckFilled } from 'react-icons/tb';
 
-function CopyButton({ text }: { text: string }) {
+function CopyButton({ classes, text }: { text: string; classes?: string }) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -25,7 +25,10 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="justify-center p-2 text-xl text-foregroundSubtle drop-shadow-md transition-all hover:rounded hover:text-foreground"
+      className={
+        'justify-center p-2 text-xl text-secondary drop-shadow-md transition-all hover:rounded hover:text-foreground ' +
+        classes
+      }
     >
       {copied ? <TbCopyCheckFilled /> : <TbCopy />}
     </button>

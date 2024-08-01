@@ -36,10 +36,13 @@ function ProfileMenu() {
   return (
     <>
       {showProfileMenu ? (
-        <div className={`absolute right-0 top-0 p-2`} ref={menuRef as any}>
-          <div className="bg-primaryThin shadow-primaryThin flex-row justify-between overflow-hidden rounded-xl border-2 border-primary p-3 backdrop-blur-sm">
+        <div
+          className={`absolute right-0 top-0 flex h-full p-2`}
+          ref={menuRef as any}
+        >
+          <div className="flex-row justify-between overflow-hidden rounded-xl border-2 border-primary bg-foregroundThin p-6 shadow-primaryThin backdrop-blur-sm">
             <div>
-              <h1 className="text-glitch justify-items-center text-lg tracking-widest text-foreground">
+              <h1 className="justify-items-center text-lg tracking-widest text-foreground text-glitch">
                 {formatArweaveAddress(address ?? '')}{' '}
                 <CopyButton text={address ?? ''} />
               </h1>

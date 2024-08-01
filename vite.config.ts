@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import { rawPlugin } from 'vite-plugin-raw';
 import svgr from 'vite-plugin-svgr';
 
 // https://vitejs.dev/config/
@@ -14,6 +15,7 @@ export default defineConfig({
     cssMinify: true,
   },
   plugins: [
+    rawPlugin({ match: /\.lua$/ }),
     svgr(),
     react(),
     nodePolyfills({

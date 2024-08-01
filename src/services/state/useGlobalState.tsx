@@ -1,11 +1,9 @@
 import { THEME_TYPES } from '@src/constants';
 import { create } from 'zustand';
 
+import { Profile } from '../ao/profiles/Profile';
+
 export type ThemeType = (typeof THEME_TYPES)[keyof typeof THEME_TYPES];
-export type Profile = {
-  name: string;
-  avatar: string;
-};
 
 export type GlobalState = {
   connecting: boolean;
