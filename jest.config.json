@@ -9,6 +9,12 @@
     "^@tests/(.*)$": "<rootDir>/tests/$1",
     "^@src/(.*)$": "<rootDir>/src/$1"
   },
+  "transform": {
+    "^.+\\.(ts|tsx|js|jsx|mjs)$": ["ts-jest", { "useESM": true }]
+  },
+  "transformIgnorePatterns": [
+    "/node_modules/(?!arbundles|arweave-wallet-connector|@permaweb).+\\.js$"
+  ],
   "moduleDirectories": ["node_modules", "assets"],
   "testPathIgnorePatterns": ["tests/common/"],
   "coverageThreshold": {

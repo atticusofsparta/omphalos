@@ -1,4 +1,4 @@
-import { connect } from '@permaweb/aoconnect/browser';
+import { connect } from '@permaweb/aoconnect';
 import winston, { createLogger, format, transports } from 'winston';
 
 import { Logger } from '../types/index.js';

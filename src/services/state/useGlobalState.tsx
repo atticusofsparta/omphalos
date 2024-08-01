@@ -1,7 +1,7 @@
 import { THEME_TYPES } from '@src/constants';
 import { create } from 'zustand';
 
-import { Profile } from '../ao/profiles/Profile';
+import { AoProfile } from '../ao/profiles/Profile';
 
 export type ThemeType = (typeof THEME_TYPES)[keyof typeof THEME_TYPES];
 
@@ -9,14 +9,14 @@ export type GlobalState = {
   connecting: boolean;
   signing: boolean;
   showProfileMenu: boolean;
-  profile?: Profile;
+  profile?: AoProfile;
 };
 
 export type GlobalStateActions = {
   setConnecting: (connecting: boolean) => void;
   setSigning: (signing: boolean) => void;
   setShowProfileMenu: (showProfileMenu: boolean) => void;
-  setProfile: (profile: Profile) => void;
+  setProfile: (profile: AoProfile) => void;
   reset: () => void;
 };
 
@@ -41,7 +41,7 @@ export class GlobalStateActionBase implements GlobalStateActions {
   setShowProfileMenu = (showProfileMenu: boolean) => {
     this.set({ showProfileMenu });
   };
-  setProfile = (profile: Profile | undefined) => {
+  setProfile = (profile: AoProfile | undefined) => {
     this.set({ profile });
   };
   reset = () => {

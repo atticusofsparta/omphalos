@@ -10,3 +10,6 @@ import { TextDecoder, TextEncoder } from 'util';
 global.React = React;
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
+global.performance.markResourceTiming = jest.fn();
+global.fetch = require('node-fetch');
+global.crypto = jest.fn();

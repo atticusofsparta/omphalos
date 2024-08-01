@@ -5,5 +5,5 @@ declare module 'vite-plugin-raw' {
     match: RegExp;
   }
 
-  export function rawPlugin(options: RawPluginOptions): Plugin;
+  export default function rawPlugin(options: RawPluginOptions): Plugin;
 }

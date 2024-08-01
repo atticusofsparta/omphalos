@@ -10,7 +10,7 @@ import {
   isProcessIdConfiguration,
   safeDecode,
 } from '@ar.io/sdk';
-import { connect } from '@permaweb/aoconnect/browser';
+import { connect } from '@permaweb/aoconnect';
 
 export interface AOContract {
   read<K>({

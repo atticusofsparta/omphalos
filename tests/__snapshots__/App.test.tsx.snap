@@ -6,17 +6,91 @@ exports[`App should render App 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="center flex flex-row"
+        class="scrollbar h-screen w-screen overflow-x-auto overflow-y-hidden bg-cyber-garden bg-cover bg-no-repeat dark:bg-background dark:text-foregroundSubtle"
       >
-        Loading
+        <div
+          class="h-full bg-[rgb(0,0,0,0.9)]"
+        >
+          <div
+            class="flex w-screen flex-row flex-row justify-between p-3"
+          >
+            <div>
+              <h1
+                class=" text-6xl tracking-widest text-foreground drop-shadow-md"
+              >
+                <span
+                  class="text-primary text-glitch text-glitch-duration-slow"
+                >
+                  Ω
+                </span>
+                mphalos
+              </h1>
+            </div>
+            <div>
+              <button
+                class="bg-primary text-foregroundSubtle hover:text-foreground p-2 hover:rounded transition-all font-bold drop-shadow-md"
+              >
+                Connect
+              </button>
+            </div>
+          </div>
+          <div
+            class="relative flex h-full flex-row"
+          >
+            <div
+              class="center flex flex-row"
+            >
+              Loading
+            </div>
+          </div>
+        </div>
+         
+         
       </div>
     </div>
   </body>,
   "container": <div>
     <div
-      class="center flex flex-row"
+      class="scrollbar h-screen w-screen overflow-x-auto overflow-y-hidden bg-cyber-garden bg-cover bg-no-repeat dark:bg-background dark:text-foregroundSubtle"
     >
-      Loading
+      <div
+        class="h-full bg-[rgb(0,0,0,0.9)]"
+      >
+        <div
+          class="flex w-screen flex-row flex-row justify-between p-3"
+        >
+          <div>
+            <h1
+              class=" text-6xl tracking-widest text-foreground drop-shadow-md"
+            >
+              <span
+                class="text-primary text-glitch text-glitch-duration-slow"
+              >
+                Ω
+              </span>
+              mphalos
+            </h1>
+          </div>
+          <div>
+            <button
+              class="bg-primary text-foregroundSubtle hover:text-foreground p-2 hover:rounded transition-all font-bold drop-shadow-md"
+            >
+              Connect
+            </button>
+          </div>
+        </div>
+        <div
+          class="relative flex h-full flex-row"
+        >
+          <div
+            class="center flex flex-row"
+          >
+            Loading
+          </div>
+        </div>
+      </div>
+       
+       
     </div>
   </div>,
   "debug": [Function],
