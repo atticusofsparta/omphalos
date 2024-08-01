@@ -1,6 +1,7 @@
 import { useGlobalState } from '@src/services/state/useGlobalState';
 import { formatArweaveAddress } from '@src/utils';
 import { useActiveAddress } from 'arweave-wallet-kit';
+import { motion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 
 import CopyButton from '../buttons/CopyButton';
@@ -35,23 +36,34 @@ function ProfileMenu() {
 
   return (
     <>
-      {showProfileMenu ? (
-        <div
-          className={`absolute right-0 top-0 flex h-full p-2`}
-          ref={menuRef as any}
+      <motion.div
+        animate={{
+          opacity: showProfileMenu ? 1 : 0,
+          width: showProfileMenu ? 'fit-content' : '0%',
+          transition: { duration: 0.25 },
+        }}
+        className={`absolute right-0 top-0 box-border flex h-full p-2`}
+        ref={menuRef as any}
+      >
+        <motion.div
+          animate={{
+            padding: showProfileMenu ? '6px' : '0',
+            border: showProfileMenu ? '2px' : '0',
+            boxShadow: showProfileMenu ? undefined : '0 0 0 0',
+            opacity: showProfileMenu ? 1 : 0,
+            width: showProfileMenu ? 'fit-content' : '0%',
+            transition: { duration: 0.25 },
+          }}
+          className={`box-border flex-row justify-between overflow-hidden rounded-xl border-2 border-primary bg-foregroundThin shadow-primaryThin backdrop-blur-sm`}
         >
-          <div className="flex-row justify-between overflow-hidden rounded-xl border-2 border-primary bg-foregroundThin p-6 shadow-primaryThin backdrop-blur-sm">
-            <div>
-              <h1 className="justify-items-center text-lg tracking-widest text-foreground text-glitch">
-                {formatArweaveAddress(address ?? '')}{' '}
-                <CopyButton text={address ?? ''} />
-              </h1>
-            </div>
+          <div>
+            <h1 className="justify-items-center text-lg tracking-widest text-foreground text-glitch">
+              {formatArweaveAddress(address ?? '')}{' '}
+              <CopyButton text={address ?? ''} />
+            </h1>
           </div>
-        </div>
-      ) : (
-        <> </>
-      )}
+        </motion.div>
+      </motion.div>
     </>
   );
 }

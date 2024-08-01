@@ -2,7 +2,7 @@
 
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'selector', // or 'media' or 'class
+  darkMode: 'selector', // or 'media' or 'class'
   theme: {
     duration: {
       fast: '1s',
@@ -31,7 +31,7 @@ export default {
     },
     darkMode: 'selector',
     colors: {
-      background: '##01012b',
+      background: '#01012b',
       foregroundSubtle: '#005678',
       foreground: '#05d9e8',
       foregroundThin: 'rgba(5, 217, 232, 0.40)',

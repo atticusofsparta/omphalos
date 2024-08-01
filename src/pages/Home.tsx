@@ -1,5 +1,7 @@
 function Home() {
-  return <div className="flex-column flex h-full w-full"></div>;
+  return (
+    <div className="flex-column align-center flex h-full w-full justify-center"></div>
+  );
 }
 3;
 
