@@ -1,6 +1,13 @@
 import { copyToClipboard } from '@src/utils';
+import { Howl } from 'howler';
 import { CSSProperties, useEffect, useState } from 'react';
 import { TbCopy, TbCopyCheckFilled } from 'react-icons/tb';
+
+export const copySound = new Howl({
+  src: ['/sounds/trashed.wav'],
+  volume: 0.2,
+  loop: false,
+});
 
 function CopyButton({ classes, text }: { text: string; classes?: string }) {
   const [copied, setCopied] = useState(false);
@@ -16,6 +23,7 @@ function CopyButton({ classes, text }: { text: string; classes?: string }) {
 
   function handleCopy() {
     try {
+      copySound.play();
       copyToClipboard(text);
       setCopied(true);
     } catch (error) {

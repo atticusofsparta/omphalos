@@ -2,13 +2,26 @@ function Button({
   children,
   classes,
   onClick,
+  disabled,
+  sound,
 }: {
   children?: React.ReactNode;
   classes?: string;
-  onClick?: () => void;
+  onClick?: (e: any) => void;
+  disabled?: boolean;
+  sound?: Howl;
 }) {
   return (
-    <button onClick={onClick} className={classes}>
+    <button
+      onClick={(e) => {
+        if (sound) sound.play();
+        if (onClick) {
+          onClick(e);
+        }
+      }}
+      className={classes}
+      disabled={disabled}
+    >
       {children}
     </button>
   );

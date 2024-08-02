@@ -13,8 +13,14 @@ import NotFound from './pages/NotFound';
 const Home = React.lazy(() => import('./pages/Home'));
 
 const sentryCreateBrowserRouter = wrapCreateBrowserRouter(createHashRouter);
+export const welcomeSound = new Howl({
+  src: ['/public/sounds/welcome-to-omphalos.wav'],
+  volume: 0.5,
+  loop: false,
+});
 
 function App() {
+  welcomeSound.play();
   const router = sentryCreateBrowserRouter(
     createRoutesFromElements(
       <Route element={<AppRouterLayout />} errorElement={<NotFound />}>
