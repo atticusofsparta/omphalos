@@ -1,4 +1,7 @@
 import { connect } from '@permaweb/aoconnect';
+import { PermissionType } from 'arconnect';
+import Arweave from 'arweave';
+import { ArweaveWebWallet } from 'arweave-wallet-connector';
 import winston, { createLogger, format, transports } from 'winston';
 
 import { Logger } from '../types/index.js';
@@ -70,3 +73,23 @@ function getLogFormat(logFormat: string) {
 }
 
 export const DEFAULT_AO = connect();
+
+export const DEFAULT_ARWEAVE = Arweave.init({
+  host: 'arweave.net',
+  port: 443,
+  protocol: 'https',
+});
+
+export const APP_PERMISSIONS: PermissionType[] = [
+  'ACCESS_ADDRESS',
+  'ACCESS_ALL_ADDRESSES',
+  'ACCESS_PUBLIC_KEY',
+  'SIGN_TRANSACTION',
+  'ACCESS_ARWEAVE_CONFIG',
+  'SIGNATURE',
+];
+
+export const ARWEAVE_APP_API = new ArweaveWebWallet(
+  { name: 'ArNS' },
+  { state: { url: 'arweave.app' } },
+);

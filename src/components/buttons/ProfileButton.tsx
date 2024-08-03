@@ -1,15 +1,13 @@
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useGlobalState } from '@src/services/state/useGlobalState';
 import { formatArweaveAddress } from '@src/utils';
-import { useActiveAddress } from 'arweave-wallet-kit';
 import { motion } from 'framer-motion';
-import { TbPencil } from 'react-icons/tb';
 
 import { menuSound } from '../navigation/ProfileMenu';
 import Button from './Button';
-import ConnectButton from './ConnectButton';
 
 function ProfileButton() {
-  const address = useActiveAddress();
+  const address = useGlobalState((state) => state.address);
   const showProfileMenu = useGlobalState((state) => state.showProfileMenu);
   const setShowProfileMenu = useGlobalState(
     (state) => state.setShowProfileMenu,

@@ -1,3 +1,4 @@
+import '@rainbow-me/rainbowkit/styles.css';
 import { useGlobalState } from '@src/services/state/useGlobalState';
 
 import ProfileButton from '../buttons/ProfileButton';

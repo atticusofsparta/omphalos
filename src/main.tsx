@@ -1,32 +1,20 @@
-import { ArweaveWalletKit } from 'arweave-wallet-kit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { WagmiProvider } from 'wagmi';
 
 import App from './App.tsx';
 import './index.css';
-import './index.css';
 // setup sentry
 import './services/sentry.ts';
+import { wagmiConfig } from './services/wallets/evmWallets.ts';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ArweaveWalletKit
-      config={{
-        permissions: [
-          'ACCESS_ADDRESS',
-          'ACCESS_ALL_ADDRESSES',
-          'ACCESS_PUBLIC_KEY',
-        ],
-        appInfo: {
-          name: 'Omphalos',
-        },
-      }}
-      theme={{
-        accent: { r: 255, g: 42, b: 109 },
-        displayTheme: 'dark',
-      }}
-    >
-      <App />
-    </ArweaveWalletKit>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={new QueryClient()}>
+        <App />
+      </QueryClientProvider>
+    </WagmiProvider>
   </React.StrictMode>,
 );

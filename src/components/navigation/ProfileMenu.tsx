@@ -1,16 +1,12 @@
-import { SpotLight } from '@react-three/drei';
-import { Canvas } from '@react-three/fiber';
+import { notificationEmitter } from '@src/services/events';
 import { useGlobalState } from '@src/services/state/useGlobalState';
 import { formatArweaveAddress } from '@src/utils';
-import { useActiveAddress } from 'arweave-wallet-kit';
 import { motion } from 'framer-motion';
 import { Howl } from 'howler';
 import { useEffect, useRef } from 'react';
-import { AmbientLight, DepthTexture } from 'three';
 
 import Button from '../buttons/Button';
 import CopyButton from '../buttons/CopyButton';
-import Planet from '../layout/background/Planet';
 import SpaceScene from '../layout/background/SpaceScene';
 
 export const menuSound = new Howl({
@@ -19,14 +15,16 @@ export const menuSound = new Howl({
   loop: false,
 });
 function ProfileMenu() {
+  const wallet = useGlobalState((state) => state.wallet);
+  const address = useGlobalState((state) => state.address);
+  const setAddress = useGlobalState((state) => state.setAddress);
+  const setWallet = useGlobalState((state) => state.setWallet);
   const showProfileMenu = useGlobalState((state) => state.showProfileMenu);
   const profile = useGlobalState((state) => state.profile);
   const setShowProfileMenu = useGlobalState(
     (state) => state.setShowProfileMenu,
   );
   const menuRef = useRef<HTMLDivElement>();
-
-  const address = useActiveAddress();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -80,47 +78,79 @@ function ProfileMenu() {
               className="w-full rounded-t-2xl"
               height={'inherit'}
             />
-            <div className="absolute bottom-0 left-0 flex h-full w-full flex-row justify-between bg-[rgb(0,0,0,0.8)] p-2 text-secondary">
-              <div className="flex flex-col gap-2">
-                <span className="flex items-center justify-center gap-2">
-                  {formatArweaveAddress(address ?? '')}{' '}
-                  <CopyButton text={address ?? ''} />
-                </span>
-                <span>
-                  {profile?.DisplayName
-                    ? profile.DisplayName.length > 13
-                      ? formatArweaveAddress(profile.DisplayName)
-                      : profile.DisplayName
-                    : 'display name'}
-                </span>
-                <span>
-                  {profile?.UserName
-                    ? profile.UserName.length > 13
-                      ? formatArweaveAddress(profile.UserName)
-                      : profile.UserName
-                    : 'username'}
-                </span>
+            <div className="absolute bottom-0 left-0 flex flex h-full w-full flex-row flex-col justify-between bg-[rgb(0,0,0,0.8)] p-2 text-secondary">
+              <div className="flex w-full flex-row justify-between">
+                <div className="flex flex-col gap-2">
+                  <span className="flex items-center justify-center gap-2">
+                    {formatArweaveAddress(address ?? '')}{' '}
+                    <CopyButton text={address ?? ''} />
+                  </span>
+                  <span>
+                    {profile?.DisplayName
+                      ? profile.DisplayName.length > 13
+                        ? formatArweaveAddress(profile.DisplayName)
+                        : profile.DisplayName
+                      : 'display name'}
+                  </span>
+                  <span>
+                    {profile?.UserName
+                      ? profile.UserName.length > 13
+                        ? formatArweaveAddress(profile.UserName)
+                        : profile.UserName
+                      : 'username'}
+                  </span>
+                </div>
+                <Button
+                  classes="h-fit rounded-full relative shadow-primaryThin hover:shadow-primary hover:ring-1 ring-foreground transition-all duration-300"
+                  onClick={() => {
+                    menuSound.play();
+                    setShowProfileMenu(false);
+                  }}
+                >
+                  <img
+                    src={
+                      profile?.ProfileImage
+                        ? `http://arweave.net/${profile?.ProfileImage}`
+                        : '/images/pfps/naturalist-human/4.webp'
+                    }
+                    width={'75px'}
+                    height={'75px'}
+                    alt="profile"
+                    className="rounded-full"
+                  />
+                </Button>
               </div>
-              <Button
-                classes="h-fit rounded-full relative shadow-primaryThin hover:shadow-primary hover:ring-1 ring-foreground transition-all duration-300"
-                onClick={() => {
-                  menuSound.play();
-                  setShowProfileMenu(false);
-                }}
-              >
-                <img
-                  src={
-                    profile?.ProfileImage
-                      ? `http://arweave.net/${profile?.ProfileImage}`
-                      : '/images/pfps/naturalist-human/4.webp'
+
+              <div className="flex w-full flex-row justify-end">
+                <Button
+                  onClick={() => console.log('click')}
+                  sound={
+                    new Howl({
+                      src: ['/sounds/bloop.wav'],
+                      volume: 0.05,
+                      loop: false,
+                    })
                   }
-                  width={'75px'}
-                  height={'75px'}
-                  alt="profile"
-                  className="rounded-full"
-                />
-              </Button>
+                >
+                  Edit Profile
+                </Button>
+              </div>
             </div>
+          </div>
+          <div className="box-border flex h-[66%] w-full items-end justify-end bg-[rgb(0,0,0,0.3)] p-4">
+            <Button
+              classes="hover:text-primary text-secondary text-lg h-fit"
+              onClick={() => {
+                wallet?.disconnect();
+                setAddress(undefined);
+                setWallet(undefined);
+                notificationEmitter.emit('notification', 'Disconnected');
+                setShowProfileMenu(false);
+              }}
+              sound={menuSound}
+            >
+              Disconnect
+            </Button>
           </div>
         </motion.div>
 

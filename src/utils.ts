@@ -29,3 +29,10 @@ export function safeDecode(json: string) {
     return undefined;
   }
 }
+
+export const executeWithTimeout = async (fn: () => any, ms: number) => {
+  return await Promise.race([
+    fn(),
+    new Promise((resolve) => setTimeout(() => resolve('timeout'), ms)),
+  ]);
+};
