@@ -112,6 +112,7 @@ function CreateProfileModal({
             <div className="relative flex">
               <FileInput
                 icon={<></>}
+                disabled={!showModal}
                 name="coverImage"
                 classes={
                   'w-full relative h-[300px] flex flex-col items-center justify-center border-foregroundThin bg-[rgba(0,0,0,0.8)]'
@@ -134,6 +135,7 @@ function CreateProfileModal({
               <div className="absolute bottom-[-30px] right-[-10px]">
                 <FileInput
                   icon={<></>}
+                  disabled={!showModal}
                   classes={
                     'w-[150px] relative h-[150px] border-foregroundThin p-4 flex flex-col items-center justify-center border-secondary bg-[rgba(0,0,0,0.8)] z-10'
                   }

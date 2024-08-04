@@ -27,7 +27,7 @@ function Modal({
     >
       <motion.div
         animate={{
-          y: visible ? 0 : 100,
+          y: visible ? 0 : 10000,
           x: visible ? 0 : 100,
           opacity: visible ? 1 : 0,
         }}

@@ -53,4 +53,10 @@ export default defineConfig({
       '@src': path.resolve(__dirname) + '/src',
     },
   },
+  server: {
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+    },
+  },
 });
