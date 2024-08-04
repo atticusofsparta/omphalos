@@ -19,8 +19,8 @@ export type ProfileAssociation = {
 
 export type ProfileUpdateProps = {
   username?: string;
-  profileImage?: string;
-  coverImage?: string;
+  profileImage?: string | Blob;
+  coverImage?: string | Blob;
   description?: string;
   displayName?: string;
 };

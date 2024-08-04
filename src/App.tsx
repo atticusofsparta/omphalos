@@ -31,6 +31,7 @@ rainbowKitTheme.colors.modalBorder = 'rgb(3, 160, 98)';
 rainbowKitTheme.colors.accentColor = '#d1f7ff';
 rainbowKitTheme.colors.accentColorForeground = '#000000';
 rainbowKitTheme.fonts.body = 'Kode Mono Variable, monospace';
+rainbowKitTheme.shadows.dialog = '0px 0px 15px 5px rgba(3, 160, 98, 0.40)';
 
 function App() {
   welcomeSound.play();

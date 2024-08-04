@@ -36,3 +36,8 @@ export const executeWithTimeout = async (fn: () => any, ms: number) => {
     new Promise((resolve) => setTimeout(() => resolve('timeout'), ms)),
   ]);
 };
+
+export function camelToReadable(camel: string) {
+  const words = camel.replace(/([A-Z])/g, ' $1').toLowerCase();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}

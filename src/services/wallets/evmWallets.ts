@@ -5,7 +5,7 @@ import { DataItem, InjectedEthereumSigner, createData } from 'arbundles';
 import Transaction from 'arweave/node/lib/transaction';
 import { BrowserProvider, JsonRpcSigner } from 'ethers';
 import type { Account, Chain, Client, Transport } from 'viem';
-import { mainnet, sepolia } from 'wagmi/chains';
+import { mainnet } from 'wagmi/chains';
 
 export const wagmiConfig = getDefaultConfig({
   appName: 'Omphalos',

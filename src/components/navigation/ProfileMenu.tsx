@@ -3,11 +3,12 @@ import { useGlobalState } from '@src/services/state/useGlobalState';
 import { formatArweaveAddress } from '@src/utils';
 import { motion } from 'framer-motion';
 import { Howl } from 'howler';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import Button from '../buttons/Button';
 import CopyButton from '../buttons/CopyButton';
 import SpaceScene from '../layout/background/SpaceScene';
+import CreateProfileModal from '../modals/CreateProfileModal';
 
 export const menuSound = new Howl({
   src: ['/sounds/menu-sound.wav'],
@@ -25,6 +26,8 @@ function ProfileMenu() {
     (state) => state.setShowProfileMenu,
   );
   const menuRef = useRef<HTMLDivElement>();
+
+  const [showCreateProfileModal, setShowCreateProfileModal] = useState(false);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -54,7 +57,7 @@ function ProfileMenu() {
           width: showProfileMenu ? '33%' : '0%',
           transition: { duration: 0.25 },
         }}
-        className={`absolute right-0 top-0 box-border flex h-full p-2 backdrop-blur-sm backdrop-filter`}
+        className={`absolute right-0 top-0 box-border flex h-full backdrop-blur-sm backdrop-filter`}
         ref={menuRef as any}
       >
         <motion.div
@@ -122,18 +125,36 @@ function ProfileMenu() {
               </div>
 
               <div className="flex w-full flex-row justify-end">
-                <Button
-                  onClick={() => console.log('click')}
-                  sound={
-                    new Howl({
-                      src: ['/sounds/bloop.wav'],
-                      volume: 0.05,
-                      loop: false,
-                    })
-                  }
-                >
-                  Edit Profile
-                </Button>
+                {profile ? (
+                  <Button
+                    onClick={() => console.log('click')}
+                    sound={
+                      new Howl({
+                        src: ['/sounds/bloop.wav'],
+                        volume: 0.05,
+                        loop: false,
+                      })
+                    }
+                  >
+                    Edit Profile
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      setShowCreateProfileModal(true);
+                    }}
+                    sound={
+                      new Howl({
+                        src: ['/sounds/bloop.wav'],
+                        volume: 0.05,
+                        loop: false,
+                      })
+                    }
+                  >
+                    Create Profile
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -159,6 +180,10 @@ function ProfileMenu() {
           <SpaceScene />
         </div>
       </motion.div>
+      <CreateProfileModal
+        showModal={showCreateProfileModal}
+        setShowModal={(b: boolean) => setShowCreateProfileModal(b)}
+      />
     </>
   );
 }
