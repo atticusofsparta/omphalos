@@ -106,6 +106,7 @@ export class GlobalStateActionBase implements GlobalStateActions {
       profiles: Object.entries(profiles).reduce(
         (acc: Record<string, AoProfile>, [profileId, profile]: any, i) => {
           if (i === 0) {
+            this.set({ profileId: profileId });
             this.setProfile(profile as AoProfile);
             this.set({
               profileProvider: Profile.init({

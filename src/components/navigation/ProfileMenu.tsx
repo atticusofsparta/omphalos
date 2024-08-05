@@ -23,6 +23,7 @@ function ProfileMenu() {
   const setAddress = useGlobalState((state) => state.setAddress);
   const setWallet = useGlobalState((state) => state.setWallet);
   const showProfileMenu = useGlobalState((state) => state.showProfileMenu);
+  const profileId = useGlobalState((state) => state.profileId);
   const p = useGlobalState((state) => state.profile);
   const profile = p?.Profile;
   const setShowProfileMenu = useGlobalState(
@@ -88,8 +89,14 @@ function ProfileMenu() {
             <div className="absolute bottom-0 left-0 flex flex h-full w-full flex-row flex-col justify-between bg-[rgb(0,0,0,0.8)] p-2 text-secondary">
               <div className="flex w-full flex-row justify-between">
                 <div className="flex flex-col gap-2">
+                  {profileId && (
+                    <span className="flex items-center justify-center gap-2">
+                      Profile: {formatArweaveAddress(profileId ?? '')}{' '}
+                      <CopyButton text={address ?? ''} />
+                    </span>
+                  )}
                   <span className="flex items-center justify-center gap-2">
-                    {formatArweaveAddress(address ?? '')}{' '}
+                    Wallet: {formatArweaveAddress(address ?? '')}{' '}
                     <CopyButton text={address ?? ''} />
                   </span>
                   <span>

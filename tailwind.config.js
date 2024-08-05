@@ -23,6 +23,33 @@ export default {
     extend: {
       backgroundImage: {
         'cyber-garden': "url('./images/flow-punk.webp')",
+        'cool-cyan': 'linear-gradient(90deg, #01012b, #05d9e8)',
+        'cool-cyan-thin':
+          'linear-gradient(90deg, rgba(1, 1, 43, 0.4), rgba(5, 217, 232, 0.4))',
+        'vibrant-pink': 'linear-gradient(90deg, #ff2a6d, #d1f7ff)',
+        'vibrant-pink-thin':
+          'linear-gradient(90deg, rgba(255, 42, 109, 0.4), rgba(209, 247, 255, 0.4))',
+        'forest-green': 'linear-gradient(90deg, #01012b, rgb(3, 160, 98))',
+        'forest-green-thin':
+          'linear-gradient(90deg, rgba(1, 1, 43, 0.4), rgba(3, 160, 98, 0.4))',
+        'ocean-blue': 'linear-gradient(90deg, #005678, #d1f7ff)',
+        'ocean-blue-thin':
+          'linear-gradient(90deg, rgba(0, 86, 120, 0.4), rgba(209, 247, 255, 0.4))',
+        'sunset-orange': 'linear-gradient(90deg, #ff2a6d, #ffff00)',
+        'sunset-orange-thin':
+          'linear-gradient(90deg, rgba(255, 42, 109, 0.4), rgba(255, 255, 0, 0.4))',
+        'night-sky': 'linear-gradient(90deg, #01012b, #000000)',
+        'night-sky-thin':
+          'linear-gradient(90deg, rgba(1, 1, 43, 0.4), rgba(0, 0, 0, 0.4))',
+        'error-alert': 'linear-gradient(90deg, #ff0000, #ff2a6d)',
+        'error-alert-thin':
+          'linear-gradient(90deg, rgba(255, 0, 0, 0.4), rgba(255, 42, 109, 0.4))',
+        'success-green': 'linear-gradient(90deg, #00ff00, #d1f7ff)',
+        'success-green-thin':
+          'linear-gradient(90deg, rgba(0, 255, 0, 0.4), rgba(209, 247, 255, 0.4))',
+        warning: 'linear-gradient(90deg, #ffff00, #ff2a6d)',
+        'warning-thin':
+          'linear-gradient(90deg, rgba(255, 255, 0, 0.4), rgba(255, 42, 109, 0.4))',
       },
       text: {
         // TODO: add typography tokens
@@ -50,7 +77,6 @@ export default {
         foregroundThin: '0px 0px 15px 5px rgba(5, 217, 232, 0.40)',
       },
     },
-    darkMode: 'selector',
     colors: {
       background: '#01012b',
       foregroundSubtle: '#005678',
@@ -75,6 +101,6 @@ export default {
   plugins: [
     require('tailwindcss-animate'),
     require('@designbycode/tailwindcss-text-glitch'),
-    require('tailwind-scrollbar'),
+    require('tailwind-scrollbar')({ nocompatible: true }),
   ],
 };

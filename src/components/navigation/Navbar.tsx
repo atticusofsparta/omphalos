@@ -6,7 +6,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 import ProfileButton from '../buttons/ProfileButton';
 
-export const navLinkHoverSound = new Howl({
+export const bloopSound = new Howl({
   src: ['/public/sounds/bloop.wav'],
   volume: 0.01,
 });
@@ -38,9 +38,7 @@ function NavLink({
     <motion.div
       onMouseEnter={() => {
         if (!disabled && !isSamePage) {
-          isSamePage
-            ? navLinkEnabledHoverSound.play()
-            : navLinkHoverSound.play();
+          isSamePage ? navLinkEnabledHoverSound.play() : bloopSound.play();
         }
       }}
       onClick={() => {

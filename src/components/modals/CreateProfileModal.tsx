@@ -1,11 +1,14 @@
 import { camelToReadable } from '@src/utils';
+import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { TbUpload } from 'react-icons/tb';
+import { TbInfoCircle, TbUpload } from 'react-icons/tb';
 import { profile } from 'winston';
 
 import Button from '../buttons/Button';
+import Tooltip from '../data-display/Tooltip';
 import FileInput from '../inputs/FileInput';
 import InlineTextInput from '../inputs/text/InlineTextInput';
+import { bloopSound } from '../navigation/Navbar';
 import Modal from './Modal';
 
 /**
@@ -26,7 +29,7 @@ export type GitIntegration = {
   username: string;
   apiKey: string;
 };
-export type SupportedGitIntegrations = 'github';
+export type SupportedGitIntegrations = 'github' | 'gitlab';
 export type CreateProfileForm = {
   coverImage: string;
   profileImage: string;
@@ -44,6 +47,10 @@ export const defaultCreateProfileForm: CreateProfileForm = {
   description: '',
   gitIntegrations: {
     github: {
+      username: '',
+      apiKey: '',
+    },
+    gitlab: {
       username: '',
       apiKey: '',
     },
@@ -110,12 +117,20 @@ function CreateProfileModal({
       [key]: v,
     }));
   }
-  const inputClasses = `bg-[rgb(0,0,0,0.8)] text-foreground placeholder:text-sm text-md dark:focus:ring-foreground dark:focus:border-foreground flex flex-row p-1 rounded-md border-2 border-black`;
+  const inputClasses = `bg-[rgb(0,0,0,0.8)] text-primary placeholder:text-sm text-md dark:focus:ring-foreground dark:focus:border-foreground flex flex-row p-1 rounded-md border-2 border-black`;
   return (
-    <Modal visible={showModal}>
-      <div ref={modalRef} className="flex w-[700px] flex-col gap-4">
+    <Modal
+      visible={showModal}
+      modalClasses="bg-night-sky border-2 border-primary rounded-lg shadow-primaryThin m-4"
+    >
+      <div
+        ref={modalRef}
+        className="scrollbar-thumb-rounded-full scrollbar-thumb-primaryThin scrollbar-w-2 scrollbar scrollbar-track-slate-300 scrollbar-h-50 flex max-h-[70vh] w-[700px] flex-col gap-4 overflow-y-scroll p-6"
+      >
         <div className="flex h-fit w-[600px] w-full flex-col gap-2 text-secondary">
-          <h1 className="text-bold text-xl text-foreground">Create Profile</h1>
+          <h1 className="rounded-md border-[1px] border-primary p-2 text-xl font-bold text-secondary shadow-primaryThinBottom">
+            Create Profile
+          </h1>
           {/* inputs */}
           <div className="flex w-full flex-col gap-4">
             <div className="relative flex">
@@ -170,12 +185,66 @@ function CreateProfileModal({
               </div>
             </div>
             {Object.keys(formState).map((key: string) => {
-              if (
-                key === 'socialLinks' ||
-                key == 'coverImage' ||
-                key === 'profileImage'
-              ) {
+              if (key == 'coverImage' || key === 'profileImage') {
                 return;
+              } else if (key === 'gitIntegrations') {
+                return (
+                  <div className="flex flex-col text-xl">
+                    <span className="flex w-full items-center justify-center">
+                      <span className="flex flex-row items-center justify-center gap-2">
+                        {camelToReadable(key)}
+                        <Tooltip
+                          message={
+                            <span className="bg-night-sky m-2 flex rounded-lg border-2 border-primary p-2 text-matrix shadow-primaryThin">
+                              Git integrations allow Omphalos to access your
+                              repositories. API keys should be generated from
+                              your providers (eg github, gitlab, etc) user
+                              settings - for security, ensure that only READ
+                              permissions are enabled. Note that Omphalos will
+                              encrypt your API key with your connected wallet's
+                              public key and store it in your profile. Certain
+                              integrations (like automated action setup) may
+                              require WRITE permissions.
+                            </span>
+                          }
+                        >
+                          <motion.div onMouseEnter={() => bloopSound.play()}>
+                            <TbInfoCircle className="cursor-pointer hover:text-matrix" />
+                          </motion.div>
+                        </Tooltip>
+                      </span>
+                    </span>
+                    {Object.keys(formState.gitIntegrations).map((gitKey) => (
+                      <div className="flex flex-col gap-2">
+                        <span className="flex flex-col gap-2 text-lg">
+                          {camelToReadable(gitKey)}
+                        </span>
+                        {Object.keys(
+                          formState.gitIntegrations[
+                            gitKey as SupportedGitIntegrations
+                          ],
+                        ).map((subKey) => {
+                          return (
+                            <InlineTextInput
+                              key={subKey}
+                              title={camelToReadable(subKey)}
+                              classes={inputClasses}
+                              placeholder={`Enter ${gitKey} ${camelToReadable(subKey)}`}
+                              value={
+                                formState.gitIntegrations[
+                                  gitKey as SupportedGitIntegrations
+                                ][subKey as keyof GitIntegration] as string
+                              }
+                              setValue={(v) =>
+                                handleFormChange(v, subKey as any)
+                              }
+                            />
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                );
               }
 
               return (
@@ -195,7 +264,7 @@ function CreateProfileModal({
         {/* footer */}
         <div className="flex w-full flex-row items-center justify-between">
           <Button
-            classes="p-1 rounded-md bg-secondary border-2 border-black text-black flex w-fit hover:bg-warningThin transition-all"
+            classes="p-1 rounded-md bg-secondary border-2 border-black text-black flex w-fit hover:bg-ocean-blue-thin transition-all"
             onClick={() => {
               setFormState(defaultCreateProfileForm);
               setCoverImage(undefined);
@@ -206,13 +275,13 @@ function CreateProfileModal({
           </Button>
           <div className="flex flex-row gap-2">
             <Button
-              classes="text-black border-2 border-black rounded-md p-1 hover:bg-secondaryThin transition-all"
+              classes="text-black border-2 border-black bg-secondaryThin rounded-md p-1 hover:bg-secondary transition-all"
               onClick={() => setShowModal(false)}
             >
               Cancel
             </Button>
             <Button
-              classes="text-black border-2 border-black rounded-md p-1 bg-secondary hover:bg-matrixThin transition-all"
+              classes="text-primary border-2 border-primary rounded-md p-1 bg-forest-green-thin hover:bg-sunset-orange hover:text-black transition-all"
               onClick={() => console.log(formState)}
             >
               Create
