@@ -37,7 +37,7 @@ export interface AoProfileRegistryReadable {
     profileIds,
   }: {
     profileIds: string[];
-  }): Promise<AoProfile[]>;
+  }): Promise<AoProfile & { ProfileId: string }[]>;
 }
 
 export class ProfileRegistry {
@@ -84,8 +84,8 @@ export class ProfileRegistryReadable implements AoProfileRegistryReadable {
     profileIds,
   }: {
     profileIds: string[];
-  }): Promise<AoProfile[]> {
-    return this.process.read<AoProfile[]>({
+  }): Promise<AoProfile & { ProfileId: string }[]> {
+    return this.process.read<AoProfile & { ProfileId: string }[]>({
       tags: [{ name: 'Action', value: 'Get-Metadata-By-Profile-Ids' }],
       data: JSON.stringify({ ProfileIds: profileIds }),
     });

@@ -1,7 +1,7 @@
 import { APP_PERMISSIONS } from '@src/constants';
-import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
-import { JsonRpcSigner } from 'ethers';
+import { FallbackProvider, JsonRpcSigner } from 'ethers';
+import { Connector } from 'wagmi';
 
 import { WagmiError, WalletNotInstalledError } from '../../../types/error';
 import { executeWithTimeout } from '../../utils';
@@ -11,19 +11,28 @@ import {
   WALLET_TYPES,
   WalletConnector,
 } from './arweave';
-import { createArconnectLikeEvmInterface, getEthersSigner } from './evmWallets';
+import {
+  createArconnectLikeEvmInterface,
+  getEthersSigner,
+  wagmiConfig,
+} from './evmWallets';
 
 export class WagmiWalletConnector implements WalletConnector {
   private _wallet: JsonRpcSigner;
+  private connector: Connector;
   arconnectSigner: Window['arweaveWallet'];
-  constructor(signer: JsonRpcSigner) {
+  constructor(signer: JsonRpcSigner, connector: Connector) {
     this._wallet = signer;
+    this.connector = connector;
     this.arconnectSigner = createArconnectLikeEvmInterface(signer);
   }
 
-  static async createConnector() {
-    const signer = await getEthersSigner();
-    return new WagmiWalletConnector(signer);
+  static async createConnector(
+    ethersProvider: JsonRpcSigner,
+    connector: Connector,
+  ) {
+    //const signer = await getEthersSigner(wagmiConfig, ethersProvider);
+    return new WagmiWalletConnector(ethersProvider, connector);
   }
 
   // The API has been shown to be unreliable, so we call each function with a timeout
@@ -44,14 +53,14 @@ export class WagmiWalletConnector implements WalletConnector {
     return res as T;
   }
 
-  async connect(): Promise<void> {
+  async connect(): Promise<string> {
     if (!window.arweaveWallet) {
       window.open('https://arconnect.io');
 
-      return;
+      return this.getWalletAddress();
     }
     // confirm they have the extension installed
-    localStorage.setItem('walletType', WALLET_TYPES.ARCONNECT);
+    localStorage.setItem('walletType', WALLET_TYPES.EVM);
     const permissions = await this.safeArconnectApiExecutor(
       this.arconnectSigner?.getPermissions,
     );
@@ -62,7 +71,7 @@ export class WagmiWalletConnector implements WalletConnector {
       // disconnect due to missing permissions, then re-connect
       await this.safeArconnectApiExecutor(this.arconnectSigner?.disconnect);
     } else if (permissions) {
-      return;
+      return this.getWalletAddress();
     }
 
     await this.arconnectSigner.connect(APP_PERMISSIONS).catch((err) => {
@@ -70,11 +79,15 @@ export class WagmiWalletConnector implements WalletConnector {
       console.error(err);
       throw new WagmiError('User cancelled authentication.');
     });
+    return this.getWalletAddress();
   }
 
   async disconnect(): Promise<void> {
     localStorage.removeItem('walletType');
-    return this.safeArconnectApiExecutor(this.arconnectSigner?.disconnect);
+    console.log('disconnecting');
+    console.log(this.connector);
+    // await this.connector.disconnect();
+    return this.arconnectSigner.disconnect();
   }
 
   async getWalletAddress(): Promise<string> {

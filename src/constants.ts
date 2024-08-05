@@ -12,7 +12,7 @@ export const THEME_TYPES = {
 };
 
 export const PROFILE_REGISTRY_ID =
-  'iySPL7MpiZCvei0DIFzjNOudjbCnHHXf9rPgbXH-T90';
+  'SNy4m-DrqxWl01YqGM4sxI8qCni-58re8uuJLvZPypY';
 
 export class DefaultLogger implements Logger {
   private logger: winston.Logger;

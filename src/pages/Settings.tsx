@@ -1,4 +1,4 @@
-function Home() {
+function Settings() {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-10 p-6">
       home
@@ -7,4 +7,4 @@ function Home() {
 }
 3;
 
-export default Home;
+export default Settings;

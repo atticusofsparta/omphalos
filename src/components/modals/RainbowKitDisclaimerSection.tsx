@@ -1,14 +1,17 @@
+import { createAoSigner } from '@ar.io/sdk';
 import { errorEmitter } from '@src/services/events';
 import { useGlobalState } from '@src/services/state/useGlobalState';
 import { ArConnectWalletConnector } from '@src/services/wallets/ArconnectWalletConnector';
 import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
 import { OthentWalletConnector } from '@src/services/wallets/OthentWalletConnector';
 import { WalletConnector } from '@src/services/wallets/arweave';
+import { update } from 'lodash';
 import { TbBrandGoogle } from 'react-icons/tb';
 
 import Button from '../buttons/Button';
 
 function Disclaimer() {
+  const updateProfiles = useGlobalState((s) => s.updateProfiles);
   const setWallet = useGlobalState((s) => s.setWallet);
   const setAddress = useGlobalState((s) => s.setAddress);
   const buttonClasses =
@@ -17,10 +20,13 @@ function Disclaimer() {
   async function handleConnect(provider: WalletConnector) {
     try {
       // updates address and aoSigner in global state hook
-      await provider.connect();
+      const maybeAddress = await provider.getWalletAddress().catch(() => null);
+      !maybeAddress && (await provider.connect());
       setWallet(provider);
       const address = await provider.getWalletAddress();
       setAddress(address);
+      const signer = await createAoSigner(provider.arconnectSigner!);
+      await updateProfiles(address, signer);
     } catch (error) {
       errorEmitter.emit('error', error);
     }

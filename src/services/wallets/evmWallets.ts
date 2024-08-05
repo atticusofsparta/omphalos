@@ -31,14 +31,15 @@ export function clientToSigner(client: Client<Transport, Chain, Account>) {
 /** Action to convert a viem Wallet Client to an ethers.js Signer. */
 export async function getEthersSigner(
   config: Config = { ...wagmiConfig },
+  ethersProvider: JsonRpcSigner,
   { chainId }: { chainId?: number } = {},
 ) {
   const client = await getConnectorClient(config, { chainId });
   return clientToSigner(client);
 }
 
-export async function getArbundlesEthSigner() {
-  const ethersSigner = await getEthersSigner();
+export async function getArbundlesEthSigner(ethersProvider: JsonRpcSigner) {
+  const ethersSigner = await getEthersSigner(wagmiConfig, ethersProvider);
   const provider = {
     getSigner: () => ({
       signMessage: (message: any) => ethersSigner.signMessage(message),

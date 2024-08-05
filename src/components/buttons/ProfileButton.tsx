@@ -28,10 +28,10 @@ function ProfileButton() {
     >
       <div className="flex flex-col gap-2 p-1 text-secondary">
         <span>
-          {profile?.DisplayName
-            ? profile.DisplayName.length > 13
-              ? formatArweaveAddress(profile.DisplayName)
-              : profile.DisplayName
+          {profile?.Profile?.DisplayName
+            ? profile.Profile.DisplayName.length > 13
+              ? formatArweaveAddress(profile.Profile.DisplayName)
+              : profile.Profile.DisplayName
             : formatArweaveAddress(address)}
         </span>
       </div>
@@ -45,12 +45,12 @@ function ProfileButton() {
       >
         <img
           src={
-            profile?.ProfileImage
-              ? `http://arweave.net/${profile?.ProfileImage}`
+            profile?.Profile?.ProfileImage
+              ? `http://arweave.net/${profile.Profile?.ProfileImage}`
               : '/images/pfps/naturalist-human/4.webp'
           }
-          width={'75px'}
-          height={'75px'}
+          width={'60px'}
+          height={'60px'}
           alt="profile"
           className="rounded-full"
         />

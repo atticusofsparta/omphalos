@@ -1,11 +1,7 @@
-import { FileSystemTree, WebContainer } from '@webcontainer/api';
-import * as ghToContainer from 'github-to-webcontainer';
-
-import { errorEmitter } from '../events';
+import { WebContainer } from '@webcontainer/api';
+import { createFileTree } from 'github-to-webcontainer';
 
 const GITHUB_TOKEN = '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';
-
-const createFileTree = ghToContainer.createFileTree;
 
 /**
  * Build a GitHub project using WebContainer and return the built files.
@@ -30,7 +26,7 @@ export async function buildGithubProject({
   if (!fileTree) {
     throw new Error('Failed to create file tree');
   }
-  const container = await WebContainer.boot();
+  const container = await WebContainer.boot({ coep: 'none' });
   await container.mount(fileTree);
 
   const installProcess = await container.spawn('yarn');

@@ -15,19 +15,25 @@ import Modal from './Modal';
  * - Name (displayName)
  * - Handle (username)
  * - Bio (description)
- * - social links (facebook, twitter, instagram, linkedin, youtube), appendable
+ * - git integrations (github, gitlab, protocol.land, etc)
  * ---------- ADVANCED ----------
  * - API keys (github, openAI, google, twitter, facebook, linkedin, youtube), appendable, this section gets encrypted with public key
  * - Custom tags for process (including registry ID)
  */
 
+export type GitUsername = string;
+export type GitIntegration = {
+  username: string;
+  apiKey: string;
+};
+export type SupportedGitIntegrations = 'github';
 export type CreateProfileForm = {
   coverImage: string;
   profileImage: string;
   displayName: string;
   username: string;
   description: string;
-  socialLinks: Record<string, string>;
+  gitIntegrations: Record<SupportedGitIntegrations, GitIntegration>;
 };
 
 export const defaultCreateProfileForm: CreateProfileForm = {
@@ -36,8 +42,11 @@ export const defaultCreateProfileForm: CreateProfileForm = {
   displayName: '',
   username: '',
   description: '',
-  socialLinks: {
-    github: '',
+  gitIntegrations: {
+    github: {
+      username: '',
+      apiKey: '',
+    },
   },
 };
 function CreateProfileModal({
@@ -104,7 +113,7 @@ function CreateProfileModal({
   const inputClasses = `bg-[rgb(0,0,0,0.8)] text-foreground placeholder:text-sm text-md dark:focus:ring-foreground dark:focus:border-foreground flex flex-row p-1 rounded-md border-2 border-black`;
   return (
     <Modal visible={showModal}>
-      <div ref={modalRef} className="flex flex-col gap-4">
+      <div ref={modalRef} className="flex w-[700px] flex-col gap-4">
         <div className="flex h-fit w-[600px] w-full flex-col gap-2 text-secondary">
           <h1 className="text-bold text-xl text-foreground">Create Profile</h1>
           {/* inputs */}

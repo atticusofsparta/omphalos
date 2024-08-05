@@ -15,11 +15,15 @@ const errorSound = new Howl({
   loop: false,
 });
 
-const notifyError = (e: string) =>
-  toast(JSON.stringify(e), {
+const notifyError = (e: Error) =>
+  toast(e.message, {
     className:
       'bg-errorThin shadow-errorThin border-2 border-error text-secondary p-4',
     icon: <TbSkull className="text-5xl text-error" />,
+    style: {
+      backgroundColor: 'rgba(255, 0, 0, 0.40)',
+      color: 'white',
+    },
   });
 
 const notifySuccess = (msg: string) =>
@@ -27,6 +31,10 @@ const notifySuccess = (msg: string) =>
     className:
       'bg-matrixThin shadow-matrixThin border-2 border-matrix text-secondary p-4',
     icon: <TbCheck className="text-2xl text-secondary" />,
+    style: {
+      backgroundColor: 'rgba(3, 160, 98, 0.40)',
+      color: 'white',
+    },
   });
 
 function Notifications() {
@@ -40,6 +48,7 @@ function Notifications() {
     errorEmitter.on('error', (error) => {
       errorSound.play();
       menuSound.play();
+      console.error(error);
       notifyError(error);
       captureException(error);
     });

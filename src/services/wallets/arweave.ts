@@ -1,7 +1,7 @@
 import { ApiConfig } from 'arweave/node/lib/api';
 
 export interface WalletConnector {
-  connect(): Promise<void>;
+  connect(): Promise<string>;
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<string>;
   getGatewayConfig(): Promise<ApiConfig>;

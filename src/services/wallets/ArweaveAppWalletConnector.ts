@@ -36,14 +36,18 @@ export class ArweaveAppWalletConnector implements WalletConnector {
     return res as T;
   }
 
-  async connect(): Promise<void> {
+  async connect(): Promise<string> {
     // confirm they have the extension installed
     try {
       localStorage.setItem('walletType', WALLET_TYPES.ARWEAVE_APP);
 
-      await this._wallet.connect({
-        name: 'ARNS - ar.io',
-      });
+      const address = await this.getWalletAddress().catch(() => null);
+
+      !address &&
+        (await this._wallet?.connect({
+          name: 'ARNS - ar.io',
+        }));
+      return address ?? this.getWalletAddress();
     } catch (error) {
       localStorage.removeItem('walletType');
       throw new ArweaveAppError('User cancelled authentication.');

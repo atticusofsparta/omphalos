@@ -1,3 +1,4 @@
+import WasmMemoryVisualizer from '@src/components/layout/background/WasmMemoryVisualizer';
 import { notificationEmitter } from '@src/services/events';
 import { useGlobalState } from '@src/services/state/useGlobalState';
 import { formatArweaveAddress } from '@src/utils';
@@ -16,12 +17,14 @@ export const menuSound = new Howl({
   loop: false,
 });
 function ProfileMenu() {
+  const resetState = useGlobalState((state) => state.reset);
   const wallet = useGlobalState((state) => state.wallet);
   const address = useGlobalState((state) => state.address);
   const setAddress = useGlobalState((state) => state.setAddress);
   const setWallet = useGlobalState((state) => state.setWallet);
   const showProfileMenu = useGlobalState((state) => state.showProfileMenu);
-  const profile = useGlobalState((state) => state.profile);
+  const p = useGlobalState((state) => state.profile);
+  const profile = p?.Profile;
   const setShowProfileMenu = useGlobalState(
     (state) => state.setShowProfileMenu,
   );
@@ -81,6 +84,7 @@ function ProfileMenu() {
               className="w-full rounded-t-2xl"
               height={'inherit'}
             />
+
             <div className="absolute bottom-0 left-0 flex flex h-full w-full flex-row flex-col justify-between bg-[rgb(0,0,0,0.8)] p-2 text-secondary">
               <div className="flex w-full flex-row justify-between">
                 <div className="flex flex-col gap-2">
@@ -110,17 +114,23 @@ function ProfileMenu() {
                     setShowProfileMenu(false);
                   }}
                 >
-                  <img
-                    src={
-                      profile?.ProfileImage
-                        ? `http://arweave.net/${profile?.ProfileImage}`
-                        : '/images/pfps/naturalist-human/4.webp'
-                    }
-                    width={'75px'}
-                    height={'75px'}
-                    alt="profile"
-                    className="rounded-full"
-                  />
+                  {profile?.ProfileImage ? (
+                    <img
+                      src={
+                        profile?.ProfileImage
+                          ? `http://arweave.net/${profile?.ProfileImage}`
+                          : '/images/pfps/naturalist-human/4.webp'
+                      }
+                      width={'75px'}
+                      height={'75px'}
+                      alt="profile"
+                      className="rounded-full"
+                    />
+                  ) : (
+                    <div className="bottom-[120px] right-4 h-[100px] w-[100px] rounded-full border-2 border-foreground bg-black shadow-foregroundThin">
+                      <WasmMemoryVisualizer />{' '}
+                    </div>
+                  )}
                 </Button>
               </div>
 
@@ -140,6 +150,7 @@ function ProfileMenu() {
                   </Button>
                 ) : (
                   <Button
+                    classes="animate-bounce text-foreground border-2 border-foreground hover:bg-foreground hover:text-secondary p-2 rounded-md shadow-primaryThin bg-primaryThin"
                     onClick={() => {
                       setShowProfileMenu(false);
                       setShowCreateProfileModal(true);
@@ -161,12 +172,13 @@ function ProfileMenu() {
           <div className="box-border flex h-[66%] w-full items-end justify-end bg-[rgb(0,0,0,0.3)] p-4">
             <Button
               classes="hover:text-primary text-secondary text-lg h-fit"
-              onClick={() => {
-                wallet?.disconnect();
+              onClick={async () => {
+                await wallet?.disconnect();
                 setAddress(undefined);
                 setWallet(undefined);
                 notificationEmitter.emit('notification', 'Disconnected');
                 setShowProfileMenu(false);
+                resetState();
               }}
               sound={menuSound}
             >

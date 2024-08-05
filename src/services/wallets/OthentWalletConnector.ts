@@ -36,7 +36,7 @@ export class OthentWalletConnector implements WalletConnector {
     return res as T;
   }
 
-  async connect(): Promise<void> {
+  async connect(): Promise<string> {
     // confirm they have the extension installed
     localStorage.setItem('walletType', WALLET_TYPES.OTHENT);
 
@@ -45,6 +45,7 @@ export class OthentWalletConnector implements WalletConnector {
       console.error(err);
       throw new OthentError('User cancelled authentication.');
     });
+    return this.getWalletAddress();
   }
 
   async disconnect(): Promise<void> {

@@ -1,22 +1,41 @@
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
 import { wrapCreateBrowserRouter } from '@sentry/react';
-import React, { Suspense, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { Suspense } from 'react';
 import {
   Route,
   RouterProvider,
   createHashRouter,
   createRoutesFromElements,
 } from 'react-router-dom';
-import { useAccount } from 'wagmi';
 
 import AppRouterLayout from './components/layout/AppRouterLayout';
 import Disclaimer from './components/modals/RainbowKitDisclaimerSection';
+import useAutoReconnect from './hooks/useAutoReconnect';
 import NotFound from './pages/NotFound';
-import { errorEmitter } from './services/events';
-import { useGlobalState } from './services/state/useGlobalState';
-import { WagmiWalletConnector } from './services/wallets/WagmiWalletConnector';
 
-const Home = React.lazy(() => import('./pages/Home'));
+const Overview = React.lazy(() => import('./pages/Overview'));
+const Integrations = React.lazy(() => import('./pages/Integrations'));
+const Activity = React.lazy(() => import('./pages/Activity'));
+const Domains = React.lazy(() => import('./pages/Domains'));
+const Settings = React.lazy(() => import('./pages/Settings'));
+
+export const ROUTES = [
+  { to: '/overview', name: 'Overview', enabled: true, component: Overview },
+  {
+    to: '/integrations',
+    name: 'Integrations',
+    enabled: true,
+    component: Integrations,
+  },
+  { to: '/activity', name: 'Activity', enabled: true, component: Activity },
+  { to: '/domains', name: 'Domains', enabled: true, component: Domains },
+  { to: '/usage', name: 'Usage', enabled: false },
+  { to: '/monitoring', name: 'Monitoring', enabled: false },
+  { to: '/storage', name: 'Storage (arfs)', enabled: false },
+  { to: '/ai', name: 'AI', enabled: false },
+  { to: '/settings', name: 'Settings', enabled: true, component: Settings },
+];
 
 const sentryCreateBrowserRouter = wrapCreateBrowserRouter(createHashRouter);
 export const welcomeSound = new Howl({
@@ -35,44 +54,61 @@ rainbowKitTheme.shadows.dialog = '0px 0px 15px 5px rgba(3, 160, 98, 0.40)';
 
 function App() {
   welcomeSound.play();
-  const { address } = useAccount();
+  useAutoReconnect();
 
-  const setWallet = useGlobalState((s) => s.setWallet);
-  const setAddress = useGlobalState((s) => s.setAddress);
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      x: '-100vw',
+    },
+    in: {
+      opacity: 1,
+      x: 0,
+    },
+    out: {
+      opacity: 0,
+      x: '100vw',
+    },
+  };
 
-  useEffect(() => {
-    updateWallet(address);
-  }, [address]);
-
-  async function updateWallet(address?: string) {
-    try {
-      console.log('updateWallet', address);
-      let ethersProvider = undefined;
-      if (address) {
-        ethersProvider = await WagmiWalletConnector.createConnector();
-      }
-      console.log('ethersProvider', ethersProvider);
-      setAddress(address);
-      setWallet(ethersProvider);
-    } catch (error) {
-      errorEmitter.emit('error', error);
-      setAddress(undefined);
-      setWallet(undefined);
-    }
-  }
+  const pageTransition = {
+    type: 'tween',
+    ease: 'anticipate',
+    duration: 0.5,
+  };
   const router = sentryCreateBrowserRouter(
     createRoutesFromElements(
       <Route element={<AppRouterLayout />} errorElement={<NotFound />}>
-        <Route
-          index
-          element={
-            <Suspense
-              fallback={<div className="center flex flex-row">Loading</div>}
-            >
-              <Home />
-            </Suspense>
-          }
-        />
+        {ROUTES.map((route, i) => {
+          if (!route.component) return;
+          return (
+            <Route
+              key={i}
+              index={i === 0}
+              path={route.to}
+              element={
+                <Suspense
+                  fallback={
+                    <div className="flex h-full w-full flex-row bg-[rgb(0,0,0,0.5)]">
+                      Loading
+                    </div>
+                  }
+                >
+                  <motion.div
+                    initial="initial"
+                    animate="in"
+                    exit="out"
+                    variants={pageVariants}
+                    transition={pageTransition}
+                    className="flex h-full w-full flex-col"
+                  >
+                    {route.component as any}
+                  </motion.div>
+                </Suspense>
+              }
+            />
+          );
+        })}
       </Route>,
     ),
   );
@@ -88,7 +124,9 @@ function App() {
           disclaimer: Disclaimer,
         }}
       >
-        <RouterProvider router={router} />
+        <AnimatePresence onExitComplete={() => null}>
+          <RouterProvider router={router} />
+        </AnimatePresence>
       </RainbowKitProvider>
     </>
   );

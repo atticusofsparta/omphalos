@@ -36,11 +36,11 @@ export class ArConnectWalletConnector implements WalletConnector {
     return res as T;
   }
 
-  async connect(): Promise<void> {
+  async connect(): Promise<string> {
     if (!window.arweaveWallet) {
       window.open('https://arconnect.io');
 
-      return;
+      return this.getWalletAddress();
     }
     // confirm they have the extension installed
     localStorage.setItem('walletType', WALLET_TYPES.ARCONNECT);
@@ -54,7 +54,7 @@ export class ArConnectWalletConnector implements WalletConnector {
       // disconnect due to missing permissions, then re-connect
       await this.safeArconnectApiExecutor(this._wallet?.disconnect);
     } else if (permissions) {
-      return;
+      return this.getWalletAddress();
     }
 
     await this._wallet
@@ -70,6 +70,7 @@ export class ArConnectWalletConnector implements WalletConnector {
         console.error(err);
         throw new ArconnectError('User cancelled authentication.');
       });
+    return this.getWalletAddress();
   }
 
   async disconnect(): Promise<void> {
