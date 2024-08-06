@@ -87,6 +87,8 @@ export const APP_PERMISSIONS: PermissionType[] = [
   'SIGN_TRANSACTION',
   'ACCESS_ARWEAVE_CONFIG',
   'SIGNATURE',
+  'ENCRYPT',
+  'DECRYPT',
 ];
 
 export const ARWEAVE_APP_API = new ArweaveWebWallet(

@@ -13,6 +13,10 @@ import {
   isProcessConfiguration,
   isProcessIdConfiguration,
 } from '@ar.io/sdk';
+import {
+  GitIntegration,
+  SupportedGitIntegrations,
+} from '@src/components/modals/EditProfileModal';
 import { DEFAULT_AO, PROFILE_REGISTRY_ID } from '@src/constants';
 
 import { AOProcess } from '../process';
@@ -26,6 +30,7 @@ export type AoProfile = {
   Description: string;
   DisplayName: string;
   Version: string;
+  GitIntegrations: Record<SupportedGitIntegrations, GitIntegration>;
   DataUpdated: number;
   DataCreated: number;
 };
@@ -261,7 +266,6 @@ export async function spawnProfile({
     signer,
   }) as ProfileWritable;
   const updateRes = await profile.updateProfile(profileSettings);
-  console.log(updateRes);
 
   // poll the registry for the profile id
   let registered = false;
@@ -271,7 +275,7 @@ export async function spawnProfile({
     const res = await profileRegistry.getProfilesByAddress({
       address: address,
     });
-    console.log(res);
+
     registered = res.some((p) => p.ProfileId === processId);
     attempts++;
   }

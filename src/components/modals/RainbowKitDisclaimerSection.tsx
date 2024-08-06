@@ -26,7 +26,7 @@ function Disclaimer() {
       const address = await provider.getWalletAddress();
       setAddress(address);
       const signer = await createAoSigner(provider.arconnectSigner!);
-      await updateProfiles(address, signer);
+      await updateProfiles(address, signer, provider.arconnectSigner!);
     } catch (error) {
       errorEmitter.emit('error', error);
     }

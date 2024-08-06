@@ -107,8 +107,11 @@ async function readDirectory(
   return files;
 }
 
-export async function fetchUserRepos(username: string) {
-  const url = `https://api.github.com/users/${username}/repos`;
+export async function fetchUserRepos(
+  username: string,
+  apiKey: string = GITHUB_TOKEN,
+) {
+  const url = `https://api.github.com/users/${username}/repos?per_page=100`;
 
   const options = {
     headers: {

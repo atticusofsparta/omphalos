@@ -1,5 +1,7 @@
 import { AoSigner, createAoSigner } from '@ar.io/sdk';
+import { SupportedGitIntegrations } from '@src/components/modals/CreateProfileModal';
 import { THEME_TYPES } from '@src/constants';
+import { decryptStringWithArconnect } from '@src/utils';
 import { create } from 'zustand';
 
 import {
@@ -13,6 +15,7 @@ import {
   AoProfileRegistryReadable,
   ProfileRegistry,
 } from '../ao/profiles/ProfileRegistry';
+import { errorEmitter } from '../events';
 import { WalletConnector } from '../wallets/arweave';
 
 export type ThemeType = (typeof THEME_TYPES)[keyof typeof THEME_TYPES];
@@ -39,7 +42,11 @@ export type GlobalStateActions = {
   setWallet: (wallet?: WalletConnector) => void;
   setAddress: (address?: string) => void;
   setAoSigner: (aoSigner?: AoSigner) => void;
-  updateProfiles: (address: string, signer: AoSigner) => Promise<void>;
+  updateProfiles: (
+    address: string,
+    signer: AoSigner,
+    wallet: Window['arweaveWallet'],
+  ) => Promise<void>;
   reset: () => void;
 };
 
@@ -86,21 +93,45 @@ export class GlobalStateActionBase implements GlobalStateActions {
   setAoSigner = (aoSigner: AoSigner | undefined) => {
     this.set({ aoSigner });
   };
-  updateProfiles = async (address: string, signer: AoSigner) => {
+  updateProfiles = async (
+    address: string,
+    signer: AoSigner,
+    wallet: Window['arweaveWallet'],
+  ) => {
     const registry = this.initialGlobalState.profileRegistryProvider;
     const profileIds = await registry.getProfilesByAddress({
       address,
     });
-    console.log(profileIds);
-    const profiles: Record<string, Profile> = {};
+
+    const profiles: Record<string, ProfileInfoResponse> = {};
     await Promise.all(
       profileIds.map(async ({ ProfileId }) => {
         const provider = Profile.init({ processId: ProfileId });
         const p = await provider.getInfo();
         profiles[ProfileId] = p;
+        for (const [gitName, integration] of Object.entries(
+          p.Profile.GitIntegrations,
+        )) {
+          try {
+            if (integration.apiKey === '') {
+              continue;
+            }
+            const key = await decryptStringWithArconnect(
+              integration.apiKey,
+              wallet,
+            );
+            profiles[ProfileId].Profile.GitIntegrations[
+              gitName as SupportedGitIntegrations
+            ].apiKey = key;
+          } catch (error) {
+            errorEmitter.emit(
+              'error',
+              new Error(`Failed to decrypt key for git integration ${gitName}`),
+            );
+          }
+        }
       }),
     );
-    console.log(profiles);
 
     this.set({
       profiles: Object.entries(profiles).reduce(

@@ -1,7 +1,11 @@
 import { Profile, spawnProfile } from '@src/services/ao/profiles/Profile';
 import { errorEmitter } from '@src/services/events';
 import { useGlobalState } from '@src/services/state/useGlobalState';
-import { camelToReadable, uploadImage } from '@src/utils';
+import {
+  camelToReadable,
+  encryptStringWithPublicKey,
+  uploadImage,
+} from '@src/utils';
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { TbInfoCircle, TbUpload } from 'react-icons/tb';
@@ -115,7 +119,7 @@ function CreateProfileModal({
         };
 
         reader.readAsDataURL(v);
-        console.log(formState);
+
         return;
       }
     }
@@ -145,7 +149,7 @@ function CreateProfileModal({
   async function createProfile() {
     try {
       setSigning(true);
-      const newProfile = { ...formState };
+      const newProfile = formState;
       if (newProfile.coverImage) {
         const coverId = await uploadImage(
           newProfile.coverImage,
@@ -161,15 +165,18 @@ function CreateProfileModal({
         newProfile.profileImage = profileId;
       }
       const gitIntegrations = newProfile.gitIntegrations;
-      for (const key in Object.keys(gitIntegrations)) {
-        if (gitIntegrations[key as SupportedGitIntegrations].apiKey.length) {
-          const encryptedApiKey = await (
-            wallet?.arconnectSigner as any
-          )?.encrypt(gitIntegrations[key as SupportedGitIntegrations].apiKey);
-          gitIntegrations[key as SupportedGitIntegrations].apiKey =
+
+      for (const gitName of Object.keys(gitIntegrations)) {
+        if (gitIntegrations[gitName as SupportedGitIntegrations].apiKey) {
+          const encryptedApiKey = await encryptStringWithPublicKey(
+            gitIntegrations[gitName as SupportedGitIntegrations].apiKey,
+            await wallet?.arconnectSigner?.getActivePublicKey()!,
+          );
+          gitIntegrations[gitName as SupportedGitIntegrations].apiKey =
             encryptedApiKey;
         }
       }
+      newProfile.gitIntegrations = gitIntegrations;
       if (!address) throw new Error('No address found');
       if (!wallet?.arconnectSigner || !signer)
         throw new Error('No signer found');
@@ -178,13 +185,14 @@ function CreateProfileModal({
         address,
         signer: wallet?.arconnectSigner,
       });
-      console.log(id);
-      await updateProfiles(address, signer);
+
+      await updateProfiles(address, signer, wallet.arconnectSigner!);
       setShowModal(false);
     } catch (error) {
       errorEmitter.emit('error', error);
     } finally {
       setSigning(false);
+      setFormState(defaultCreateProfileForm);
     }
   }
   const inputClasses = `bg-[rgb(0,0,0,0.8)] text-primary placeholder:text-sm text-md dark:focus:ring-foreground dark:focus:border-foreground flex flex-row p-1 rounded-md border-2 border-black`;
@@ -350,7 +358,10 @@ function CreateProfileModal({
           <div className="flex flex-row gap-2">
             <Button
               classes="text-black border-2 border-black bg-secondaryThin rounded-md p-1 hover:bg-secondary transition-all"
-              onClick={() => setShowModal(false)}
+              onClick={() => {
+                setFormState(defaultCreateProfileForm);
+                setShowModal(false);
+              }}
             >
               Cancel
             </Button>

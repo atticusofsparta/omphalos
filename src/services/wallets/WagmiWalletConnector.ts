@@ -84,9 +84,6 @@ export class WagmiWalletConnector implements WalletConnector {
 
   async disconnect(): Promise<void> {
     localStorage.removeItem('walletType');
-    console.log('disconnecting');
-    console.log(this.connector);
-    // await this.connector.disconnect();
     return this.arconnectSigner.disconnect();
   }
 

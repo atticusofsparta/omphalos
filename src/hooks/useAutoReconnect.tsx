@@ -19,6 +19,7 @@ function useAutoReconnect() {
   const ethersProvider = useEthersProvider();
   const address = useGlobalState((s) => s.address);
   const setAddress = useGlobalState((s) => s.setAddress);
+  const wallet = useGlobalState((s) => s.wallet);
   const setWallet = useGlobalState((s) => s.setWallet);
   const updateProfiles = useGlobalState((s) => s.updateProfiles);
   const setShowProfileMenu = useGlobalState((s) => s.setShowProfileMenu);
@@ -78,7 +79,11 @@ function useAutoReconnect() {
         setAddress(newAddress);
         setWallet(connector);
         const signer = createAoSigner(connector.arconnectSigner as any);
-        await updateProfiles(newAddress as string, signer).catch((e) => {
+        await updateProfiles(
+          newAddress as string,
+          signer,
+          connector.arconnectSigner!,
+        ).catch((e) => {
           setShowProfileMenu(true);
           errorEmitter.emit(
             'error',

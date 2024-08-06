@@ -12,9 +12,8 @@ function AppRouterLayout() {
       <div className="box-border flex h-full w-full flex-col bg-[rgb(0,0,0,0.9)]">
         <Navbar />
 
-        <div className="scrollbar flex h-full w-full flex-col">
-          <Outlet />
-        </div>
+        <Outlet />
+
         <Notifications />
       </div>
       <ProfileMenu />
