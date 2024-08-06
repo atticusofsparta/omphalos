@@ -1,4 +1,4 @@
-import { AoSigner, createAoSigner } from '@ar.io/sdk';
+import { ANTState, AoArNSNameData, AoSigner, createAoSigner } from '@ar.io/sdk';
 import { SupportedGitIntegrations } from '@src/components/modals/CreateProfileModal';
 import { THEME_TYPES } from '@src/constants';
 import { decryptStringWithArconnect } from '@src/utils';
@@ -32,6 +32,8 @@ export type GlobalState = {
   profiles?: Record<string, AoProfile>;
   profileProvider?: AoProfileRead | AoProfileWrite;
   profileRegistryProvider: AoProfileRegistryReadable;
+  domains: Record<string, AoArNSNameData>;
+  ants: Record<string, ANTState>;
 };
 
 export type GlobalStateActions = {
@@ -42,6 +44,8 @@ export type GlobalStateActions = {
   setWallet: (wallet?: WalletConnector) => void;
   setAddress: (address?: string) => void;
   setAoSigner: (aoSigner?: AoSigner) => void;
+  addDomains: (domains: Record<string, AoArNSNameData>) => void;
+  addAnts: (ants: Record<string, ANTState>) => void;
   updateProfiles: (
     address: string,
     signer: AoSigner,
@@ -58,6 +62,8 @@ export const initialGlobalState: GlobalState = {
   profiles: {},
   profileProvider: undefined,
   profileRegistryProvider: ProfileRegistry.init(),
+  domains: {},
+  ants: {},
 };
 
 export class GlobalStateActionBase implements GlobalStateActions {
@@ -152,6 +158,14 @@ export class GlobalStateActionBase implements GlobalStateActions {
         {},
       ),
     });
+  };
+  addDomains = (domains: Record<string, AoArNSNameData>) => {
+    this.set((state: GlobalState) => ({
+      domains: { ...state.domains, ...domains },
+    }));
+  };
+  addAnts = (ants: Record<string, ANTState>) => {
+    this.set((state: GlobalState) => ({ ants: { ...state.ants, ...ants } }));
   };
   reset = () => {
     this.set({ ...this.initialGlobalState });
