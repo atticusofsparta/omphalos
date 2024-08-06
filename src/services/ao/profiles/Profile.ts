@@ -3,6 +3,7 @@ import {
   AoClient,
   AoMessageResult,
   AoSigner,
+  ContractSigner,
   DEFAULT_SCHEDULER_ID,
   InvalidContractConfigurationError,
   OptionalSigner,
@@ -15,7 +16,7 @@ import {
 import { DEFAULT_AO, PROFILE_REGISTRY_ID } from '@src/constants';
 
 import { AOProcess } from '../process';
-import { ProfileUpdateProps } from './ProfileRegistry';
+import { ProfileRegistry, ProfileUpdateProps } from './ProfileRegistry';
 import LuaProfileCode from './profile-process.lua';
 
 export type AoProfile = {
@@ -136,13 +137,14 @@ export class ProfileWritable extends ProfileReadable implements AoProfileWrite {
 
   async updateProfile(p: ProfileUpdateProps): Promise<AoMessageResult> {
     return this.process.send({
-      tags: [{ name: 'Action', value: 'UpdateProfile' }],
+      tags: [{ name: 'Action', value: 'Update-Profile' }],
       data: JSON.stringify({
         UserName: p.username,
         ProfileImage: p.profileImage,
         CoverImage: p.coverImage,
         Description: p.description,
         DisplayName: p.displayName,
+        GitIntegrations: p.gitIntegrations,
       }),
       signer: this.signer,
     });
@@ -222,18 +224,24 @@ export class ProfileWritable extends ProfileReadable implements AoProfileWrite {
 }
 
 export async function spawnProfile({
+  profileSettings,
+  address,
   signer,
   registryId = PROFILE_REGISTRY_ID,
   ao = DEFAULT_AO,
 }: {
-  signer: AoSigner;
+  profileSettings: ProfileUpdateProps;
+  address: string;
+  signer: ContractSigner;
   registryId?: string;
   ao?: AoClient;
 }): Promise<string> {
+  const profileRegistry = ProfileRegistry.init({ processId: registryId });
+  const aoSigner = await createAoSigner(signer);
   const processId = await ao.spawn({
     scheduler: DEFAULT_SCHEDULER_ID,
     module: AOS_MODULE_ID,
-    signer: signer as any,
+    signer: aoSigner as any,
     tags: [{ name: 'Profile-Registry-Id', value: registryId }],
   });
 
@@ -245,8 +253,28 @@ export async function spawnProfile({
   await aosClient.send({
     tags: [{ name: 'Action', value: 'Eval' }],
     data: LuaProfileCode,
-    signer,
+    signer: aoSigner,
   });
+
+  const profile = Profile.init({
+    processId,
+    signer,
+  }) as ProfileWritable;
+  const updateRes = await profile.updateProfile(profileSettings);
+  console.log(updateRes);
+
+  // poll the registry for the profile id
+  let registered = false;
+  let attempts = 0;
+  while (!registered && attempts < 5) {
+    await new Promise((r) => setTimeout(r, 5000));
+    const res = await profileRegistry.getProfilesByAddress({
+      address: address,
+    });
+    console.log(res);
+    registered = res.some((p) => p.ProfileId === processId);
+    attempts++;
+  }
 
   return processId;
 }

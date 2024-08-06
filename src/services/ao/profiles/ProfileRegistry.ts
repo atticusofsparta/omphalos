@@ -5,6 +5,10 @@ import {
   isProcessConfiguration,
   isProcessIdConfiguration,
 } from '@ar.io/sdk';
+import {
+  GitIntegration,
+  SupportedGitIntegrations,
+} from '@src/components/modals/CreateProfileModal';
 import { PROFILE_REGISTRY_ID } from '@src/constants';
 
 import { AOProcess } from '../process';
@@ -23,6 +27,7 @@ export type ProfileUpdateProps = {
   coverImage?: string | Blob;
   description?: string;
   displayName?: string;
+  gitIntegrations?: Record<SupportedGitIntegrations, GitIntegration>;
 };
 
 export type ProfileCreateProps = ProfileUpdateProps & {};

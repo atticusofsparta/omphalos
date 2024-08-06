@@ -4,12 +4,14 @@ import { useGlobalState } from '@src/services/state/useGlobalState';
 import { formatArweaveAddress } from '@src/utils';
 import { motion } from 'framer-motion';
 import { Howl } from 'howler';
+import { set } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 
 import Button from '../buttons/Button';
 import CopyButton from '../buttons/CopyButton';
 import SpaceScene from '../layout/background/SpaceScene';
 import CreateProfileModal from '../modals/CreateProfileModal';
+import EditProfileModal from '../modals/EditProfileModal';
 
 export const menuSound = new Howl({
   src: ['/sounds/menu-sound.wav'],
@@ -32,6 +34,7 @@ function ProfileMenu() {
   const menuRef = useRef<HTMLDivElement>();
 
   const [showCreateProfileModal, setShowCreateProfileModal] = useState(false);
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -92,7 +95,7 @@ function ProfileMenu() {
                   {profileId && (
                     <span className="flex items-center justify-center gap-2">
                       Profile: {formatArweaveAddress(profileId ?? '')}{' '}
-                      <CopyButton text={address ?? ''} />
+                      <CopyButton text={profileId ?? ''} />
                     </span>
                   )}
                   <span className="flex items-center justify-center gap-2">
@@ -144,7 +147,7 @@ function ProfileMenu() {
               <div className="flex w-full flex-row justify-end">
                 {profile ? (
                   <Button
-                    onClick={() => console.log('click')}
+                    onClick={() => setShowEditProfileModal(true)}
                     sound={
                       new Howl({
                         src: ['/sounds/bloop.wav'],
@@ -202,6 +205,10 @@ function ProfileMenu() {
       <CreateProfileModal
         showModal={showCreateProfileModal}
         setShowModal={(b: boolean) => setShowCreateProfileModal(b)}
+      />
+      <EditProfileModal
+        showModal={showEditProfileModal}
+        setShowModal={(b: boolean) => setShowEditProfileModal(b)}
       />
     </>
   );

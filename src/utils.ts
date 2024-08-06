@@ -1,4 +1,4 @@
-import { THEME_TYPES } from './constants';
+import { DEFAULT_ARWEAVE, THEME_TYPES } from './constants';
 
 // for tailwind css, need the change the root
 export const applyThemePreference = (theme: string) => {
@@ -40,4 +40,19 @@ export const executeWithTimeout = async (fn: () => any, ms: number) => {
 export function camelToReadable(camel: string) {
   const words = camel.replace(/([A-Z])/g, ' $1').toLowerCase();
   return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+export async function uploadImage(
+  img: string,
+  signer: Window['arweaveWallet'],
+) {
+  const bloob = await fetch(img).then((r) => r.blob());
+  const transaction = await DEFAULT_ARWEAVE.createTransaction({
+    data: await bloob.arrayBuffer(),
+  });
+
+  transaction.addTag('Content-Type', bloob.type);
+  await signer.sign(transaction);
+  await DEFAULT_ARWEAVE.transactions.post(transaction);
+  return transaction.id;
 }

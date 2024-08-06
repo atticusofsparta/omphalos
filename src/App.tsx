@@ -3,6 +3,7 @@ import { wrapCreateBrowserRouter } from '@sentry/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { Suspense } from 'react';
 import {
+  Navigate,
   Route,
   RouterProvider,
   createHashRouter,
@@ -58,7 +59,22 @@ function App() {
 
   const router = sentryCreateBrowserRouter(
     createRoutesFromElements(
-      <Route element={<AppRouterLayout />} errorElement={<NotFound />}>
+      <Route element={<AppRouterLayout />} errorElement={<Navigate to={'/'} />}>
+        <Route
+          index
+          path={'/'}
+          element={
+            <Suspense
+              fallback={
+                <div className="flex h-full w-full flex-row bg-[rgb(0,0,0,0.5)]">
+                  Loading
+                </div>
+              }
+            >
+              <Overview />
+            </Suspense>
+          }
+        />
         <Route
           index
           path={'/overview'}

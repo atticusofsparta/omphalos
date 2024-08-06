@@ -29,6 +29,11 @@ if not Collections then Collections = {} end
 if not Roles then Roles = {} end
 
 REGISTRY = REGISTRY or ao.env.Process.Tags["Profile-Registry-Id"] or "SNy4m-DrqxWl01YqGM4sxI8qCni-58re8uuJLvZPypY"
+Owner = Owner or ao.env.Process.Owner
+
+function errorHandler(err)
+	return debug.traceback(err)
+end
 
 local function check_valid_address(address)
     if not address or type(address) ~= 'string' then
@@ -48,6 +53,9 @@ local function check_required_data(data, required_fields)
 end
 
 local function decode_message_data(data)
+    if type(data) == 'table' then
+        return true, data
+    end
     local status, decoded_data = pcall(json.decode, data)
 
     if not status or type(decoded_data) ~= 'table' then
@@ -113,7 +121,9 @@ Handlers.add('Info', Handlers.utils.hasMatchingTag('Action', 'Info'),
                 Profile = Profile,
                 Assets = Assets,
                 Collections = Collections,
-                Owner = Owner
+                Owner = Owner,
+                RegistryId = REGISTRY,
+                Roles = Roles
             })
         })
     end)
@@ -142,27 +152,48 @@ Handlers.add('Update-Profile', Handlers.utils.hasMatchingTag('Action', 'Update-P
             return
         end
 
-        local decode_check, data = decode_message_data(msg.Data)
+        local decode_check, data = xpcall(function() return json.decode(msg.Data) end, errorHandler)
+
+        if not decode_check then
+            ao.send({
+                Target = msg.From,
+                Action = 'Input-Error',
+                Tags = {
+                    Status = 'Error',
+                    EMessage = 'Failed to parse data, received: ' .. msg.Data .. '. Data must be an object - { UserName, DisplayName, Description, CoverImage, ProfileImage }'
+                }
+            })
+            return
+        end
 
         if decode_check and data then
-            if not check_required_data(data, { "UserName", "DisplayName", "Description", "CoverImage", "ProfileImage" }) then
+            if not check_required_data(data, { "UserName", "DisplayName", "Description", "CoverImage", "ProfileImage", "GitIntegrations" }) then
                 ao.send({
                     Target = msg.From,
                     Action = 'Input-Error',
                     Tags = {
                         Status = 'Error',
                         EMessage =
-                        'Invalid arguments, required at least one of { UserName, DisplayName, Description, CoverImage, ProfileImage }'
+                        'Invalid arguments, required at least one of { UserName, DisplayName, Description, CoverImage, ProfileImage, GitIntegrations }'
                     }
                 })
                 return
             end
+            -- local gitIntegrations
+            -- if data.GitIntegrations then
+            --     gitIntegrations = json.decode(data.GitIntegrations)
+            -- elseif msg.Tags.GitIntegrations then
+            --     gitIntegrations = json.decode(msg.Tags.GitIntegrations)
+            -- else
+            --     gitIntegrations = Profile.GitIntegrations
+            -- end
 
             Profile.UserName = msg.Tags.UserName or data.UserName or Profile.UserName or ''
             Profile.DisplayName = msg.Tags.DisplayName or data.DisplayName or Profile.DisplayName or ''
             Profile.Description = msg.Tags.Description or data.Description or Profile.Description or ''
             Profile.CoverImage = msg.Tags.CoverImage or data.CoverImage or Profile.CoverImage or ''
             Profile.ProfileImage = msg.Tags.ProfileImage or data.ProfileImage or Profile.ProfileImage or ''
+            Profile.GitIntegrations = data.GitIntegrations or Profile.GitIntegrations or {}
             Profile.DateCreated = Profile.DateCreated or msg.Timestamp
             Profile.DateUpdated = msg.Timestamp
 
@@ -179,6 +210,7 @@ Handlers.add('Update-Profile', Handlers.utils.hasMatchingTag('Action', 'Update-P
                     Description = Profile.Description or nil,
                     CoverImage = Profile.CoverImage or nil,
                     ProfileImage = Profile.ProfileImage or nil,
+                    GitIntegrations = Profile.GitIntegrations or nil,
                     DateCreated = Profile.DateCreated,
                     DateUpdated = Profile.DateUpdated
                 }),
@@ -203,7 +235,7 @@ Handlers.add('Update-Profile', Handlers.utils.hasMatchingTag('Action', 'Update-P
                     Status = 'Error',
                     EMessage = string.format(
                         'Failed to parse data, received: %s. %s.', msg.Data,
-                        'Data must be an object - { UserName, DisplayName, Description, CoverImage, ProfileImage }')
+                        'Data must be an object - { UserName, DisplayName, Description, CoverImage, ProfileImage, GitIntegrations }')
                 }
             })
         end

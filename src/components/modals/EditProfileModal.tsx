@@ -5,6 +5,7 @@ import { camelToReadable, uploadImage } from '@src/utils';
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { TbInfoCircle, TbUpload } from 'react-icons/tb';
+import { profile } from 'winston';
 
 import Button from '../buttons/Button';
 import Tooltip from '../data-display/Tooltip';
@@ -58,7 +59,7 @@ export const defaultCreateProfileForm: CreateProfileForm = {
     },
   },
 };
-function CreateProfileModal({
+function EditProfileModal({
   showModal,
   setShowModal,
 }: {
@@ -74,6 +75,7 @@ function CreateProfileModal({
   const signer = useGlobalState((s) => s.aoSigner);
   const wallet = useGlobalState((s) => s.wallet);
   const updateProfiles = useGlobalState((s) => s.updateProfiles);
+  const profileId = useGlobalState((s) => s.profileId);
 
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [profileImage, setProfileImage] = useState<string | undefined>(
@@ -142,7 +144,7 @@ function CreateProfileModal({
     }));
   }
 
-  async function createProfile() {
+  async function editProfile() {
     try {
       setSigning(true);
       const newProfile = { ...formState };
@@ -162,22 +164,28 @@ function CreateProfileModal({
       }
       const gitIntegrations = newProfile.gitIntegrations;
       for (const key in Object.keys(gitIntegrations)) {
-        if (gitIntegrations[key as SupportedGitIntegrations].apiKey.length) {
-          const encryptedApiKey = await (
-            wallet?.arconnectSigner as any
-          )?.encrypt(gitIntegrations[key as SupportedGitIntegrations].apiKey);
-          gitIntegrations[key as SupportedGitIntegrations].apiKey =
-            encryptedApiKey;
+        if (gitIntegrations[key as SupportedGitIntegrations]?.apiKey.length) {
+          const encryptedApiKey = await wallet?.arconnectSigner?.encrypt(
+            gitIntegrations[key as SupportedGitIntegrations].apiKey,
+            { algorithm: 'RSA-OAEP', hash: 'SHA-256' },
+          );
+          gitIntegrations[key as SupportedGitIntegrations].apiKey = Buffer.from(
+            encryptedApiKey!,
+          )?.toString('base64');
+          console.log(
+            'apikey',
+            gitIntegrations[key as SupportedGitIntegrations].apiKey,
+          );
         }
       }
+      newProfile.gitIntegrations = gitIntegrations;
       if (!address) throw new Error('No address found');
       if (!wallet?.arconnectSigner || !signer)
         throw new Error('No signer found');
-      const id = await spawnProfile({
-        profileSettings: formState as Profile,
-        address,
-        signer: wallet?.arconnectSigner,
-      });
+      const id = await Profile.init({
+        processId: profileId!,
+        signer: wallet.arconnectSigner,
+      }).updateProfile(newProfile);
       console.log(id);
       await updateProfiles(address, signer);
       setShowModal(false);
@@ -199,7 +207,7 @@ function CreateProfileModal({
       >
         <div className="flex h-fit w-[600px] w-full flex-col gap-2 text-secondary">
           <h1 className="rounded-md border-[1px] border-primary p-2 text-xl font-bold text-secondary shadow-primaryThinBottom">
-            Create Profile
+            Edit Profile
           </h1>
           {/* inputs */}
           <div className="flex w-full flex-col gap-4">
@@ -356,7 +364,7 @@ function CreateProfileModal({
             </Button>
             <Button
               classes="text-primary border-2 border-primary rounded-md p-1 bg-forest-green-thin hover:bg-sunset-orange hover:text-black transition-all"
-              onClick={() => createProfile()}
+              onClick={() => editProfile()}
             >
               Create
             </Button>{' '}
@@ -367,4 +375,4 @@ function CreateProfileModal({
   );
 }
 
-export default CreateProfileModal;
+export default EditProfileModal;

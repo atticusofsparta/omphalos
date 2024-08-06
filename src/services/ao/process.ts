@@ -155,6 +155,7 @@ export class AOProcess implements AOContract {
         const messageId = await this.ao.message({
           process: this.processId,
           // TODO: any other default tags we want to add?
+          tags,
           data: typeof data !== 'string' ? JSON.stringify(data) : data,
           signer: signer as any,
         });
