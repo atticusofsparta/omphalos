@@ -1,5 +1,6 @@
 import * as othent from '@othent/kms';
 import { DEFAULT_ARWEAVE } from '@src/constants';
+import { DataItem } from 'arbundles';
 import { ApiConfig } from 'arweave/node/lib/api';
 
 import { OthentError, WalletNotInstalledError } from '../../../types/error';
@@ -66,5 +67,13 @@ export class OthentWalletConnector implements WalletConnector {
 
   async updatePermissions(): Promise<void> {
     throw new Error('Method not implemented.');
+  }
+
+  async signDataItem(data: DataItem): Promise<ArrayBufferLike> {
+    return this._wallet.signDataItem(data) as any as ArrayBufferLike;
+  }
+
+  async getActivePublicKey(): Promise<string> {
+    return this._wallet.getActivePublicKey();
   }
 }

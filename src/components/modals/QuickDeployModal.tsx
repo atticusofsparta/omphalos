@@ -130,6 +130,10 @@ function QuickDeployModal() {
                   Manifest ID <TbOutbound className="text-2xl" />
                 </h1>
                 <p className="text-md text-success">{manifestId}</p>
+                <iframe
+                  src={`https://arweave.net/${manifestId}`}
+                  className="h-[400px] w-full border-2 border-success"
+                />
               </Card>
             </a>
           </div>

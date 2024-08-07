@@ -1,20 +1,17 @@
 import { TurboFactory, TurboSigner } from '@ardrive/turbo-sdk';
 import { ArconnectSigner, createData } from 'arbundles';
 import { Tag } from 'arweave/node/lib/transaction';
+import mime from 'mime-types';
 
 export interface ManifestPathMap {
   [index: string]: { id: string };
 }
 export interface Manifest {
-  /** manifest must be 'arweave/paths' */
   manifest: 'arweave/paths';
-  /** version must be 0.1.0 */
   version: '0.1.0';
-  /** index contains the default path that will redirected when the user access the manifest transaction itself */
   index?: {
     path: string;
   };
-  /** paths is an object of path objects */
   paths: ManifestPathMap;
 }
 
@@ -48,23 +45,32 @@ export async function uploadBuildFolder(config: {
 }): Promise<{ manifestId: string }> {
   const { files, tags, signer, indexFile = 'index.html' } = config;
   const items = new Map<string, string>();
-  //   const indexFileObject = files.find((f) => f.name === indexFile);
-  //   const indexFileWebkitRelativePath = indexFileObject?.webkitRelativePath;
 
   const turbo = TurboFactory.authenticated({
     signer: signer as any,
   });
 
   for (const file of files) {
+    let contentType = mime.lookup(file.name) || 'application/octet-stream';
+
+    // Append charset for text files
+    if (contentType.startsWith('text/')) {
+      contentType += '; charset=utf-8';
+    }
+
+    console.log(
+      `Uploading file: ${file.name} with Content-Type: ${contentType}`,
+    );
+
     const fileRes = await turbo.uploadFile({
       fileSizeFactory: () => file.size,
       fileStreamFactory: () => file.stream() as any,
       dataItemOpts: {
-        tags: [{ name: 'Content-Type', value: file.type }, ...tags],
+        tags: [{ name: 'Content-Type', value: contentType }, ...tags],
       },
     });
+
     let filePath = file.webkitRelativePath ?? file.name;
-    // trim parent directory
     if (file.webkitRelativePath) {
       const pathParts = filePath.split('/');
       pathParts.shift();
@@ -72,10 +78,8 @@ export async function uploadBuildFolder(config: {
     }
     items.set(filePath, fileRes.id);
   }
-  const manifest = buildManifest({
-    items,
-    indexFile,
-  });
+
+  const manifest = buildManifest({ items, indexFile });
   const bloob = new Blob([JSON.stringify(manifest)], {
     type: 'application/x.arweave-manifest+json',
   });
@@ -92,5 +96,7 @@ export async function uploadBuildFolder(config: {
       ],
     },
   });
+
+  console.log(`Manifest uploaded with ID: ${manifestRes.id}`);
   return { manifestId: manifestRes.id };
 }

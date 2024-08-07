@@ -1,4 +1,5 @@
 import { APP_PERMISSIONS } from '@src/constants';
+import { DataItem } from 'arbundles';
 import { ApiConfig } from 'arweave/node/lib/api';
 
 import { ArconnectError, WalletNotInstalledError } from '../../../types/error';
@@ -112,5 +113,17 @@ export class ArConnectWalletConnector implements WalletConnector {
       await this.disconnect();
       await this.connect();
     }
+  }
+
+  async getActivePublicKey(): Promise<string> {
+    return this.safeArconnectApiExecutor(() =>
+      this._wallet?.getActivePublicKey(),
+    );
+  }
+
+  async signDataItem(data: DataItem): Promise<ArrayBufferLike> {
+    return this.safeArconnectApiExecutor(() =>
+      (this._wallet as any).signDataItem(data),
+    );
   }
 }

@@ -1,4 +1,5 @@
 import { APP_PERMISSIONS } from '@src/constants';
+import { DataItem } from 'arbundles';
 import { ApiConfig } from 'arweave/node/lib/api';
 import { FallbackProvider, JsonRpcSigner } from 'ethers';
 import { Connector } from 'wagmi';
@@ -13,6 +14,7 @@ import {
 } from './arweave';
 import {
   createArconnectLikeEvmInterface,
+  getArbundlesEthSigner,
   getEthersSigner,
   wagmiConfig,
 } from './evmWallets';
@@ -121,5 +123,15 @@ export class WagmiWalletConnector implements WalletConnector {
       await this.disconnect();
       await this.connect();
     }
+  }
+  async signDataItem(data: DataItem): Promise<ArrayBufferLike> {
+    const signer = await getArbundlesEthSigner(this._wallet);
+    return data.sign(signer);
+  }
+
+  async getActivePublicKey(): Promise<string> {
+    const signer = await getArbundlesEthSigner(this._wallet);
+    await signer.setPublicKey();
+    return signer.publicKey.toString('hex');
   }
 }

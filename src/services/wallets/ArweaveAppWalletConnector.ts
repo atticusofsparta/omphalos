@@ -1,4 +1,5 @@
 import { ARWEAVE_APP_API } from '@src/constants';
+import { DataItem } from 'arbundles';
 import { ApiConfig } from 'arweave/node/lib/api';
 import { ReactiveConnector } from 'node_modules/arweave-wallet-connector/lib/browser/Reactive';
 
@@ -69,5 +70,12 @@ export class ArweaveAppWalletConnector implements WalletConnector {
       port: 443,
       protocol: 'https',
     };
+  }
+  async signDataItem(data: DataItem): Promise<ArrayBufferLike> {
+    return (this._wallet as any).signDataItem(data);
+  }
+
+  async getActivePublicKey(): Promise<string> {
+    return this._wallet.namespaces.arweaveWallet.getActivePublicKey();
   }
 }
