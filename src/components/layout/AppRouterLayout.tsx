@@ -18,9 +18,9 @@ function AppRouterLayout() {
         <Notifications />
       </div>
       <ProfileMenu />
-      <SigningModal />
       <CreateProjectModal />
       <QuickDeployModal />
+      <SigningModal />
       {/* audio and notification visualizer - cortana-esque? */}
       {/* https://codepen.io/Goliver/pen/povVOKd TODO: crystal ball look */}
       {/* <div className="shadow-foregroundThin absolute bottom-[120px] right-4 h-[150px] w-[150px] rounded-full border-2 border-foreground">

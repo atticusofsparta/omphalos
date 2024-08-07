@@ -51,15 +51,11 @@ function QuickDeployModal() {
           'Login before uploading your build files, you need to connect your wallet',
         );
       }
-      const signer = new ArconnectSigner(
-        wallet?.arconnectSigner as any,
-        DEFAULT_ARWEAVE as any,
-      ) as any;
-      await signer?.setPublicKey();
+
       const tx = await uploadBuildFolder({
         files,
         tags: [new Tag('App-Name', 'Omphalos')],
-        signer,
+        signer: wallet,
       });
       setManifestId(tx.manifestId);
     } catch (error) {

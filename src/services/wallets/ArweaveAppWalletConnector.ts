@@ -1,5 +1,5 @@
 import { ARWEAVE_APP_API } from '@src/constants';
-import { DataItem } from 'arbundles';
+import { DataItem, createData } from 'arbundles';
 import { ApiConfig } from 'arweave/node/lib/api';
 import { ReactiveConnector } from 'node_modules/arweave-wallet-connector/lib/browser/Reactive';
 
@@ -12,7 +12,7 @@ import {
 } from './arweave';
 
 export class ArweaveAppWalletConnector implements WalletConnector {
-  private _wallet: ReactiveConnector & { namespaces: any };
+  private _wallet: typeof ARWEAVE_APP_API;
   arconnectSigner?: Window['arweaveWallet'];
 
   constructor() {
@@ -61,7 +61,7 @@ export class ArweaveAppWalletConnector implements WalletConnector {
   }
 
   async getWalletAddress(): Promise<string> {
-    return this._wallet.namespaces.arweaveWallet.getActiveAddress();
+    return this._wallet.namespaces.arweaveWallet.getActiveAddress()!;
   }
 
   async getGatewayConfig(): Promise<ApiConfig> {
@@ -72,7 +72,7 @@ export class ArweaveAppWalletConnector implements WalletConnector {
     };
   }
   async signDataItem(data: DataItem): Promise<ArrayBufferLike> {
-    return (this._wallet as any).signDataItem(data);
+    return this._wallet.signDataItem(data);
   }
 
   async getActivePublicKey(): Promise<string> {

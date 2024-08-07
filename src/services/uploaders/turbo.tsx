@@ -1,7 +1,9 @@
-import { TurboFactory, TurboSigner } from '@ardrive/turbo-sdk';
-import { ArconnectSigner, createData } from 'arbundles';
+import { TokenType, TurboFactory } from '@ardrive/turbo-sdk';
+import { DataItem } from 'arbundles';
 import { Tag } from 'arweave/node/lib/transaction';
 import mime from 'mime-types';
+
+import { WalletConnector } from '../wallets';
 
 export interface ManifestPathMap {
   [index: string]: { id: string };
@@ -37,37 +39,65 @@ export function buildManifest(config: {
   return manifest;
 }
 
+export async function uploadFile(config: {
+  file: File;
+  tags: Tag[];
+  signer: WalletConnector;
+  network?: TokenType;
+}): Promise<{ id: string }> {
+  const { file, tags, signer } = config;
+  const turbo = TurboFactory.unauthenticated();
+
+  let contentType = mime.lookup(file.name) || 'application/octet-stream';
+
+  // Append charset for text files
+  if (contentType.startsWith('text/')) {
+    contentType += '; charset=utf-8';
+  }
+
+  const hasContentTypeTag = tags.some((tag) => tag.name === 'Content-Type');
+
+  console.log(`Uploading file: ${file.name} with Content-Type: ${contentType}`);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  // convert buffer to string for compatibility with arweave.app
+  const bufferString = buffer.toString('utf-8');
+
+  const dataItemRes = await signer.signDataItem({
+    data: bufferString,
+    tags: [
+      ...(!hasContentTypeTag
+        ? [{ name: 'Content-Type', value: contentType }]
+        : []),
+      ...tags,
+    ],
+    target: '0'.padEnd(43, '0'),
+  } as any);
+  const dataItem = new DataItem(Buffer.from(dataItemRes));
+
+  const fileRes = await turbo.uploadSignedDataItem({
+    dataItemSizeFactory: () => dataItem.getRaw().byteLength,
+    dataItemStreamFactory: () => dataItem.getRaw(),
+  });
+
+  return { id: fileRes.id };
+}
+
 export async function uploadBuildFolder(config: {
   files: File[];
   tags: Tag[];
-  signer: ArconnectSigner;
+  signer: WalletConnector;
   indexFile?: string;
+  network?: TokenType;
 }): Promise<{ manifestId: string }> {
   const { files, tags, signer, indexFile = 'index.html' } = config;
   const items = new Map<string, string>();
 
-  const turbo = TurboFactory.authenticated({
-    signer: signer as any,
-  });
-
   for (const file of files) {
-    let contentType = mime.lookup(file.name) || 'application/octet-stream';
-
-    // Append charset for text files
-    if (contentType.startsWith('text/')) {
-      contentType += '; charset=utf-8';
-    }
-
-    console.log(
-      `Uploading file: ${file.name} with Content-Type: ${contentType}`,
-    );
-
-    const fileRes = await turbo.uploadFile({
-      fileSizeFactory: () => file.size,
-      fileStreamFactory: () => file.stream() as any,
-      dataItemOpts: {
-        tags: [{ name: 'Content-Type', value: contentType }, ...tags],
-      },
+    const fileRes = await uploadFile({
+      file,
+      tags,
+      signer,
+      network: config.network,
     });
 
     let filePath = file.webkitRelativePath ?? file.name;
@@ -85,16 +115,15 @@ export async function uploadBuildFolder(config: {
   });
   const manFile = new File([bloob], 'manifest.json');
 
-  const manifestRes = await turbo.uploadFile({
-    fileSizeFactory: () => manFile.size,
-    fileStreamFactory: () => manFile.stream() as any,
-    dataItemOpts: {
-      tags: [
-        { name: 'Content-Type', value: 'application/x.arweave-manifest+json' },
-        { name: 'Type', value: 'manifest' },
-        ...tags,
-      ],
-    },
+  const manifestRes = await uploadFile({
+    file: manFile,
+    tags: [
+      ...tags,
+      new Tag('Content-Type', 'application/x.arweave-manifest+json'),
+      new Tag('Type', 'manifest'),
+    ],
+    signer,
+    network: config.network,
   });
 
   console.log(`Manifest uploaded with ID: ${manifestRes.id}`);

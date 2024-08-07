@@ -50,13 +50,8 @@ export async function getArbundlesEthSigner(ethersProvider: JsonRpcSigner) {
 
 export function createArconnectLikeEvmInterface(
   signer: JsonRpcSigner,
+  arbundlesSigner: InjectedEthereumSigner,
 ): Window['arweaveWallet'] {
-  const provider = {
-    getSigner: () => ({
-      signMessage: (message: any) => signer.signMessage(message),
-    }),
-  };
-  const arbundlesSigner = new InjectedEthereumSigner(provider as any);
   const arconnectLikeSigner = {
     sign: async (tx: Transaction) => {
       throw new Error('Can only sign data items as an EVM signer');
@@ -65,14 +60,14 @@ export function createArconnectLikeEvmInterface(
       return signer.address;
     },
     signDataItem: async (data: DataItem) => {
+      await arbundlesSigner?.setPublicKey();
       const dataItem = createData(data.data, arbundlesSigner, {
         tags: data.tags,
         target: data.target,
         anchor: data.anchor,
       });
-      const res = await dataItem.sign(arbundlesSigner);
 
-      return new DataItem(res);
+      return dataItem.sign(arbundlesSigner);
     },
     getArweaveConfig: async () => {
       return DEFAULT_ARWEAVE.getConfig().api as any;

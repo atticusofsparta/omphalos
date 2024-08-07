@@ -1,7 +1,7 @@
 import { APP_PERMISSIONS } from '@src/constants';
-import { DataItem } from 'arbundles';
+import { DataItem, InjectedEthereumSigner, createData } from 'arbundles';
 import { ApiConfig } from 'arweave/node/lib/api';
-import { FallbackProvider, JsonRpcSigner } from 'ethers';
+import { JsonRpcSigner } from 'ethers';
 import { Connector } from 'wagmi';
 
 import { WagmiError, WalletNotInstalledError } from '../../../types/error';
@@ -23,18 +23,34 @@ export class WagmiWalletConnector implements WalletConnector {
   private _wallet: JsonRpcSigner;
   private connector: Connector;
   arconnectSigner: Window['arweaveWallet'];
-  constructor(signer: JsonRpcSigner, connector: Connector) {
+  constructor(
+    signer: JsonRpcSigner,
+    connector: Connector,
+    arbundlesSigner: InjectedEthereumSigner,
+  ) {
     this._wallet = signer;
     this.connector = connector;
-    this.arconnectSigner = createArconnectLikeEvmInterface(signer);
+    this.arconnectSigner = createArconnectLikeEvmInterface(
+      signer,
+      arbundlesSigner,
+    );
   }
 
   static async createConnector(
     ethersProvider: JsonRpcSigner,
     connector: Connector,
   ) {
-    //const signer = await getEthersSigner(wagmiConfig, ethersProvider);
-    return new WagmiWalletConnector(ethersProvider, connector);
+    const signer = await getEthersSigner(wagmiConfig, ethersProvider);
+    const provider = {
+      getSigner: () => ({
+        signMessage: async (message: any) => {
+          const ethersSigner = await getEthersSigner(wagmiConfig, signer);
+          ethersSigner.signMessage(message);
+        },
+      }),
+    };
+    const arbundlesSigner = new InjectedEthereumSigner(provider as any);
+    return new WagmiWalletConnector(ethersProvider, connector, arbundlesSigner);
   }
 
   // The API has been shown to be unreliable, so we call each function with a timeout
@@ -124,9 +140,13 @@ export class WagmiWalletConnector implements WalletConnector {
       await this.connect();
     }
   }
-  async signDataItem(data: DataItem): Promise<ArrayBufferLike> {
+  async signDataItem(d: DataItem): Promise<ArrayBufferLike> {
+    const { data, tags, anchor, target } = d;
     const signer = await getArbundlesEthSigner(this._wallet);
-    return data.sign(signer);
+    await signer?.setPublicKey();
+    const dataItem = createData(data, signer, { tags, anchor, target });
+    const res = await dataItem.sign(signer);
+    return res;
   }
 
   async getActivePublicKey(): Promise<string> {
