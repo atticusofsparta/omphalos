@@ -27,6 +27,8 @@ export type GlobalState = {
   wallet?: WalletConnector;
   address?: string;
   showProfileMenu: boolean;
+  showCreateProjectModal: boolean;
+  showQuickDeployModal: boolean;
   profileId?: string;
   profile?: ProfileInfoResponse;
   profiles?: Record<string, AoProfile>;
@@ -40,6 +42,8 @@ export type GlobalStateActions = {
   setConnecting: (connecting: boolean) => void;
   setSigning: (signing: boolean) => void;
   setShowProfileMenu: (showProfileMenu: boolean) => void;
+  setShowCreateProjectModal: (b: boolean) => void;
+  setShowQuickDeployModal: (b: boolean) => void;
   setProfile: (profile?: AoProfile) => void;
   setWallet: (wallet?: WalletConnector) => void;
   setAddress: (address?: string) => void;
@@ -58,6 +62,8 @@ export const initialGlobalState: GlobalState = {
   connecting: false,
   signing: false,
   showProfileMenu: false,
+  showCreateProjectModal: false,
+  showQuickDeployModal: false,
   profile: undefined,
   profiles: {},
   profileProvider: undefined,
@@ -79,6 +85,12 @@ export class GlobalStateActionBase implements GlobalStateActions {
   };
   setShowProfileMenu = (showProfileMenu: boolean) => {
     this.set({ showProfileMenu });
+  };
+  setShowCreateProjectModal = (b: boolean) => {
+    this.set({ showCreateProjectModal: b });
+  };
+  setShowQuickDeployModal = (b: boolean) => {
+    this.set({ showQuickDeployModal: b });
   };
   setProfile = (profile: AoProfile | undefined) => {
     this.set({ profile });
@@ -115,25 +127,29 @@ export class GlobalStateActionBase implements GlobalStateActions {
         const provider = Profile.init({ processId: ProfileId });
         const p = await provider.getInfo();
         profiles[ProfileId] = p;
-        for (const [gitName, integration] of Object.entries(
-          p.Profile.GitIntegrations,
-        )) {
-          try {
-            if (integration.apiKey === '') {
-              continue;
+        if (p.Profile.GitIntegrations) {
+          for (const [gitName, integration] of Object.entries(
+            p.Profile?.GitIntegrations,
+          )) {
+            try {
+              if (integration.apiKey === '') {
+                continue;
+              }
+              const key = await decryptStringWithArconnect(
+                integration.apiKey,
+                wallet,
+              );
+              profiles[ProfileId].Profile.GitIntegrations[
+                gitName as SupportedGitIntegrations
+              ].apiKey = key;
+            } catch (error) {
+              errorEmitter.emit(
+                'error',
+                new Error(
+                  `Failed to decrypt key for git integration ${gitName}`,
+                ),
+              );
             }
-            const key = await decryptStringWithArconnect(
-              integration.apiKey,
-              wallet,
-            );
-            profiles[ProfileId].Profile.GitIntegrations[
-              gitName as SupportedGitIntegrations
-            ].apiKey = key;
-          } catch (error) {
-            errorEmitter.emit(
-              'error',
-              new Error(`Failed to decrypt key for git integration ${gitName}`),
-            );
           }
         }
       }),

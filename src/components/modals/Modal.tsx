@@ -19,7 +19,11 @@ function Modal({
 }) {
   return (
     <motion.div
-      animate={{ opacity: visible ? 1 : 0, width: visible ? '100%' : '0%' }}
+      animate={{
+        opacity: visible ? 1 : 0,
+        width: visible ? '100%' : '0%',
+        padding: visible ? '1rem' : '0',
+      }}
       initial={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
       onAnimationStart={() => sound?.play()}

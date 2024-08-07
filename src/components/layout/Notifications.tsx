@@ -34,6 +34,8 @@ const notifySuccess = (msg: string) =>
     style: {
       backgroundColor: 'rgba(3, 160, 98, 0.40)',
       color: 'white',
+      width: 'fit-content',
+      display: 'flex',
     },
   });
 
@@ -70,7 +72,7 @@ function Notifications() {
 
   return (
     <>
-      <Toaster position="bottom-right" />
+      <Toaster position="bottom-left" />
     </>
   );
 }

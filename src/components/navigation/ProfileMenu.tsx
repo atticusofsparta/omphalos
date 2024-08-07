@@ -61,6 +61,7 @@ function ProfileMenu() {
       <motion.div
         animate={{
           opacity: showProfileMenu ? 1 : 0,
+          padding: showProfileMenu ? '6px' : '0',
           width: showProfileMenu ? '33%' : '0%',
           transition: { duration: 0.25 },
         }}
@@ -69,7 +70,7 @@ function ProfileMenu() {
       >
         <motion.div
           animate={{
-            padding: showProfileMenu ? '6px' : '0',
+            padding: showProfileMenu ? '0px' : '0',
             borderWidth: showProfileMenu ? '2px' : '0',
             opacity: showProfileMenu ? 1 : 0,
             width: showProfileMenu ? '100%' : '0%',

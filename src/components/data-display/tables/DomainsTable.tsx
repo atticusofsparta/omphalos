@@ -1,4 +1,5 @@
 import { AoArNSNameData } from '@ar.io/sdk';
+import { camelToReadable } from '@src/utils';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { useEffect, useState } from 'react';
 
@@ -6,7 +7,7 @@ import TableView from './DataTable';
 
 interface TableData {
   name: string;
-  startTimestamp: number;
+  startTimestamp: string;
   endTimestamp: string;
   undernames: number;
 }
@@ -27,8 +28,10 @@ const DomainsTable = ({
       const newTableData = Object.entries(domains).map(
         ([arnsName, record]) => ({
           name: arnsName,
-          startTimestamp: record.startTimestamp,
-          endTimestamp: (record as any)?.endTimestamp ?? 'Permanent',
+          startTimestamp: new Date(record.startTimestamp).toDateString(),
+          endTimestamp: (record as any)?.endTimestamp
+            ? new Date((record as any).endTimestamp).toDateString()
+            : 'Permanent',
           undernames: record.undernameLimit,
         }),
       );
@@ -46,7 +49,7 @@ const DomainsTable = ({
   ].map((key) =>
     columnHelper.accessor(key as keyof TableData, {
       id: key,
-      header: key,
+      header: camelToReadable(key),
       sortDescFirst: true,
     }),
   );

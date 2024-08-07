@@ -1,3 +1,6 @@
+// custom.d.ts
+import 'react';
+
 /// <reference types="vite/client" />
 
 // useful for intellisense to auto detect available env vars
@@ -12,4 +15,12 @@ interface ImportMetaEnv {
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
+}
+
+declare module 'react' {
+  interface InputHTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
+    directory?: boolean | string;
+    webkitdirectory?: boolean | string;
+    mozdirectory?: boolean | string;
+  }
 }

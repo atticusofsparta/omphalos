@@ -23,20 +23,20 @@ const Domains = React.lazy(() => import('./pages/Domains'));
 const Settings = React.lazy(() => import('./pages/Settings'));
 
 export const ROUTES = [
-  { to: '/overview', name: 'Overview', enabled: true, component: Overview },
+  { to: '/overview', name: 'Overview', enabled: true },
   {
     to: '/integrations',
     name: 'Integrations',
     enabled: true,
     component: Integrations,
   },
-  { to: '/activity', name: 'Activity', enabled: true, component: Activity },
-  { to: '/domains', name: 'Domains', enabled: true, component: Domains },
+  { to: '/activity', name: 'Activity', enabled: true },
+  { to: '/domains', name: 'Domains', enabled: true },
   { to: '/usage', name: 'Usage', enabled: false },
   { to: '/monitoring', name: 'Monitoring', enabled: false },
   { to: '/storage', name: 'Storage (arfs)', enabled: false },
   { to: '/ai', name: 'AI', enabled: false },
-  { to: '/settings', name: 'Settings', enabled: true, component: Settings },
+  { to: '/settings', name: 'Settings', enabled: true },
 ];
 
 const sentryCreateBrowserRouter = wrapCreateBrowserRouter(createHashRouter);

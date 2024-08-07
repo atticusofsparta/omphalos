@@ -1,6 +1,4 @@
 import {
-  ANTState,
-  AoArNSNameData,
   AoIORead,
   AoIOWrite,
   ArNSEventEmitter,

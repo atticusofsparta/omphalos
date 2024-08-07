@@ -9,6 +9,7 @@ function useGithub() {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    if (!profile?.Profile?.GitIntegrations?.github) return;
     setLoading(true);
     const p = profile?.Profile;
     const user = p?.GitIntegrations.github.username;

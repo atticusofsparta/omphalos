@@ -20,6 +20,7 @@ import {
 import { DEFAULT_AO, PROFILE_REGISTRY_ID } from '@src/constants';
 
 import { AOProcess } from '../process';
+import LuaProjectManagerCode from '../projects/project-manager.lua';
 import { ProfileRegistry, ProfileUpdateProps } from './ProfileRegistry';
 import LuaProfileCode from './profile-process.lua';
 
@@ -45,16 +46,28 @@ export type AoProfileCollection = {
   Name: string;
   SortOrder: number;
 };
-
+export type OmphalosProject = Record<
+  string,
+  {
+    location: string;
+    transactionId: string;
+    dateCreated: number;
+    lastUpdated: number;
+    buildInstructions?: string[]; // CLI commands to build the project
+  }
+>;
 export type ProfileInfoResponse = {
   Profile: AoProfile;
   Assets: AoProfileAsset[];
   Collections: AoProfileCollection[];
   Owner: string;
+  Projects?: Record<string, OmphalosProject>;
 };
 
 export interface AoProfileRead {
   getInfo(): Promise<ProfileInfoResponse>;
+  getProject({ name }: { name: string }): Promise<any>;
+  getAllProjects(): Promise<any>;
 }
 
 export interface AoProfileWrite extends AoProfileRead {
@@ -74,6 +87,26 @@ export interface AoProfileWrite extends AoProfileRead {
     tags: Record<string, any>;
   }): Promise<AoMessageResult>;
   setProfileRegistry(p: { registryId: string }): Promise<AoMessageResult>;
+
+  addProject(p: {
+    name: string;
+    version: string;
+    location: string;
+    transactionId: string;
+  }): Promise<AoMessageResult>;
+  addVersion(p: {
+    name: string;
+    version: string;
+    location: string;
+    transactionId: string;
+  }): Promise<AoMessageResult>;
+  updateVersion(p: {
+    name: string;
+    version: string;
+    location: string;
+    transactionId: string;
+  }): Promise<AoMessageResult>;
+  removeVersion(p: { name: string; version: string }): Promise<AoMessageResult>;
 }
 
 export class Profile {
@@ -127,6 +160,21 @@ export class ProfileReadable implements AoProfileRead {
     });
     return info;
   }
+
+  async getProject({ name }: { name: string }): Promise<any> {
+    return this.process.read({
+      tags: [{ name: 'Action', value: 'Get-Project' }],
+      data: JSON.stringify({
+        Domain: name,
+      }),
+    });
+  }
+
+  async getAllProjects(): Promise<any> {
+    return this.process.read({
+      tags: [{ name: 'Action', value: 'Get-All-Projects' }],
+    });
+  }
 }
 
 export class ProfileWritable extends ProfileReadable implements AoProfileWrite {
@@ -141,6 +189,7 @@ export class ProfileWritable extends ProfileReadable implements AoProfileWrite {
   }
 
   async updateProfile(p: ProfileUpdateProps): Promise<AoMessageResult> {
+    // remove keys with empty string
     return this.process.send({
       tags: [{ name: 'Action', value: 'Update-Profile' }],
       data: JSON.stringify({
@@ -226,6 +275,74 @@ export class ProfileWritable extends ProfileReadable implements AoProfileWrite {
       signer: this.signer,
     });
   }
+
+  async addProject(p: {
+    name: string;
+    version: string;
+    location: string;
+    transactionId: string;
+  }): Promise<AoMessageResult> {
+    return this.process.send({
+      tags: [{ name: 'Action', value: 'Add-Project' }],
+      data: JSON.stringify({
+        Domain: p.name,
+        Version: p.version,
+        Location: p.location,
+        TransactionId: p.transactionId,
+      }),
+      signer: this.signer,
+    });
+  }
+
+  async addVersion(p: {
+    name: string;
+    version: string;
+    location: string;
+    transactionId: string;
+  }): Promise<AoMessageResult> {
+    return this.process.send({
+      tags: [{ name: 'Action', value: 'Add-Version' }],
+      data: JSON.stringify({
+        Domain: p.name,
+        Version: p.version,
+        Location: p.location,
+        TransactionId: p.transactionId,
+      }),
+      signer: this.signer,
+    });
+  }
+
+  async updateVersion(p: {
+    name: string;
+    version: string;
+    location: string;
+    transactionId: string;
+  }): Promise<AoMessageResult> {
+    return this.process.send({
+      tags: [{ name: 'Action', value: 'Update-Version' }],
+      data: JSON.stringify({
+        Domain: p.name,
+        Version: p.version,
+        Location: p.location,
+        TransactionId: p.transactionId,
+      }),
+      signer: this.signer,
+    });
+  }
+
+  removeVersion(p: {
+    name: string;
+    version: string;
+  }): Promise<AoMessageResult> {
+    return this.process.send({
+      tags: [{ name: 'Action', value: 'Remove-Version' }],
+      data: JSON.stringify({
+        Domain: p.name,
+        Version: p.version,
+      }),
+      signer: this.signer,
+    });
+  }
 }
 
 export async function spawnProfile({
@@ -280,5 +397,42 @@ export async function spawnProfile({
     attempts++;
   }
 
+  const res = await upgradeProfileForProjectManagement({
+    profileId: processId,
+    signer,
+    ao,
+  });
+
   return processId;
+}
+
+export async function upgradeProfileForProjectManagement({
+  profileId,
+  signer,
+  ao = DEFAULT_AO,
+}: {
+  profileId: string;
+  signer: ContractSigner;
+  ao?: AoClient;
+}): Promise<AoMessageResult> {
+  const aoSigner = createAoSigner(signer);
+
+  const aosClient = new AOProcess({
+    processId: profileId,
+    ao,
+  });
+
+  const baseProfileRes = await aosClient.send({
+    tags: [{ name: 'Action', value: 'Eval' }],
+    data: LuaProfileCode.toString(),
+    signer: aoSigner,
+  });
+
+  const res = await aosClient.send({
+    tags: [{ name: 'Action', value: 'Eval' }],
+    data: LuaProjectManagerCode.toString(),
+    signer: aoSigner,
+  });
+
+  return res;
 }

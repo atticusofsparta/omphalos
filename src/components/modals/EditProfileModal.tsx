@@ -14,7 +14,7 @@ import { profile } from 'winston';
 
 import Button from '../buttons/Button';
 import Tooltip from '../data-display/Tooltip';
-import FileInput from '../inputs/FileInput';
+import FileInput from '../inputs/file/FileInput';
 import InlineTextInput from '../inputs/text/InlineTextInput';
 import { bloopSound } from '../navigation/Navbar';
 import Modal from './Modal';
@@ -224,7 +224,9 @@ function EditProfileModal({
                   'w-full relative h-[300px] flex flex-col items-center justify-center border-foregroundThin bg-[rgba(0,0,0,0.8)]'
                 }
                 variant="rectangle"
-                setValue={(v) => handleFormChange(v as any, 'coverImage')}
+                onChange={(v) =>
+                  handleFormChange(v.target.files?.[0] as any, 'coverImage')
+                }
               >
                 {/* render upload here */}
                 <div className="absolute flex h-full w-full items-center justify-center">
@@ -247,7 +249,9 @@ function EditProfileModal({
                   }
                   variant="circle"
                   name="profileImage"
-                  setValue={(v) => handleFormChange(v as any, 'profileImage')}
+                  onChange={(v) =>
+                    handleFormChange(v.target.files?.[0] as any, 'profileImage')
+                  }
                 >
                   {/* render upload here */}
                   <div className="absolute flex h-full w-full items-center justify-center">

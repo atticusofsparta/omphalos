@@ -2,7 +2,9 @@ import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig } from 'vite';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
+// import { nodePolyfills } from 'vite-plugin-node-polyfills';
+// @ts-ignore
+import nodePolyfills from 'vite-plugin-node-stdlib-browser';
 import rawPlugin from 'vite-plugin-raw';
 import svgr from 'vite-plugin-svgr';
 
@@ -18,10 +20,7 @@ export default defineConfig({
     rawPlugin({ match: /\.lua$/ }),
     svgr(),
     react(),
-    nodePolyfills({
-      // Whether to polyfill `node:` protocol imports.
-      protocolImports: true,
-    }),
+    nodePolyfills(),
     ...(process.env.VITE_NODE_ENV
       ? [
           sentryVitePlugin({

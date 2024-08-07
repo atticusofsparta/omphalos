@@ -1,8 +1,8 @@
-import { ReactNode } from 'react';
+import { ChangeEventHandler, ReactNode } from 'react';
 import { TbUpload } from 'react-icons/tb';
 
 function FileInput({
-  setValue,
+  onChange,
   classes = '',
   disabled = false,
   variant = 'circle',
@@ -11,8 +11,9 @@ function FileInput({
   children,
   multiple = false,
   name,
+  acceptFolder = false,
 }: {
-  setValue: (value?: File) => void;
+  onChange: ChangeEventHandler<HTMLInputElement>;
   classes?: string;
   disabled?: boolean;
   variant?: 'circle' | 'rectangle';
@@ -21,13 +22,14 @@ function FileInput({
   children?: ReactNode;
   multiple?: boolean;
   name?: string;
+  acceptFolder?: boolean;
 }) {
   const rectangleClasses =
     'flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed';
   const circleClasses =
     'min-h-[75px] min-w-[75px] flex cursor-pointer flex-col items-center justify-center rounded-full border-2 border-dashed';
   return (
-    <div className="flex w-full">
+    <div className="flex h-full w-full">
       <label
         htmlFor={'dropzone-file' + '-' + name}
         className={
@@ -40,15 +42,30 @@ function FileInput({
           {icon}
           {children}
         </div>
-        <input
-          id={'dropzone-file' + '-' + name}
-          type="file"
-          className="hidden"
-          accept={accept}
-          multiple={multiple}
-          onChange={(f) => setValue(f.target.files?.[0])}
-          disabled={disabled}
-        />
+        {acceptFolder ? (
+          <input
+            id={'dropzone-file' + '-' + name}
+            type="file"
+            className="hidden"
+            accept={accept}
+            multiple={multiple}
+            onChange={onChange}
+            disabled={disabled}
+            directory=""
+            webkitdirectory=""
+            mozdirectory=""
+          />
+        ) : (
+          <input
+            id={'dropzone-file' + '-' + name}
+            type="file"
+            className="hidden"
+            accept={accept}
+            multiple={multiple}
+            onChange={onChange}
+            disabled={disabled}
+          />
+        )}
       </label>
     </div>
   );

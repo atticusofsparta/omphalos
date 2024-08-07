@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 
 import ProfileButton from '../buttons/ProfileButton';
+import QuickDeployButton from '../buttons/QuickDeployButton';
+import UpdateProfileButton from '../buttons/UpdateProfileButton';
 
 export const bloopSound = new Howl({
   src: ['/public/sounds/bloop.wav'],
@@ -75,6 +77,7 @@ function NavLink({
 function Navbar() {
   const connecting = useGlobalState((state) => state.connecting);
   const signing = useGlobalState((state) => state.signing);
+
   return (
     <div className="flex w-screen flex-col">
       <div className="flex w-screen flex-row justify-between p-3 px-10">
@@ -89,7 +92,9 @@ function Navbar() {
           </h1>
         </div>
         {/* right group */}
-        <div>
+        <div className="flex flex-row gap-4">
+          <UpdateProfileButton />
+          <QuickDeployButton />
           <ProfileButton />
         </div>
       </div>
