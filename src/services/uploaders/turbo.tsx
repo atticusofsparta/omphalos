@@ -48,6 +48,8 @@ export async function uploadBuildFolder(config: {
 }): Promise<{ manifestId: string }> {
   const { files, tags, signer, indexFile = 'index.html' } = config;
   const items = new Map<string, string>();
+  //   const indexFileObject = files.find((f) => f.name === indexFile);
+  //   const indexFileWebkitRelativePath = indexFileObject?.webkitRelativePath;
 
   const turbo = TurboFactory.authenticated({
     signer: signer as any,
@@ -57,12 +59,25 @@ export async function uploadBuildFolder(config: {
     const fileRes = await turbo.uploadFile({
       fileSizeFactory: () => file.size,
       fileStreamFactory: () => file.stream() as any,
+      dataItemOpts: {
+        tags: [{ name: 'Content-Type', value: file.type }, ...tags],
+      },
     });
-    items.set(file.name, fileRes.id);
+    let filePath = file.webkitRelativePath ?? file.name;
+    // trim parent directory
+    if (file.webkitRelativePath) {
+      const pathParts = filePath.split('/');
+      pathParts.shift();
+      filePath = pathParts.join('/');
+    }
+    items.set(filePath, fileRes.id);
   }
-  const manifest = buildManifest({ items, indexFile });
+  const manifest = buildManifest({
+    items,
+    indexFile,
+  });
   const bloob = new Blob([JSON.stringify(manifest)], {
-    type: 'application/json',
+    type: 'application/x.arweave-manifest+json',
   });
   const manFile = new File([bloob], 'manifest.json');
 
@@ -70,7 +85,11 @@ export async function uploadBuildFolder(config: {
     fileSizeFactory: () => manFile.size,
     fileStreamFactory: () => manFile.stream() as any,
     dataItemOpts: {
-      tags: [{ name: 'Content-Type', value: 'application/json' }, ...tags],
+      tags: [
+        { name: 'Content-Type', value: 'application/x.arweave-manifest+json' },
+        { name: 'Type', value: 'manifest' },
+        ...tags,
+      ],
     },
   });
   return { manifestId: manifestRes.id };

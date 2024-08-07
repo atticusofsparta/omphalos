@@ -37,6 +37,7 @@ function QuickDeployModal() {
     if (!fileLength) return;
     for (let i = 0; i < fileLength; i++) {
       const file = e.target.files?.item(i);
+      console.log(file);
       if (file) files.push(file);
     }
     setFiles(files);
@@ -54,6 +55,7 @@ function QuickDeployModal() {
         wallet?.arconnectSigner as any,
         DEFAULT_ARWEAVE as any,
       ) as any;
+      await signer?.setPublicKey();
       const tx = await uploadBuildFolder({
         files,
         tags: [new Tag('App-Name', 'Omphalos')],
