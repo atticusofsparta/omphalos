@@ -1,6 +1,3 @@
-// custom.d.ts
-import 'react';
-
 /// <reference types="vite/client" />
 
 // useful for intellisense to auto detect available env vars
@@ -11,16 +8,11 @@ interface ImportMetaEnv {
   readonly VITE_SENTRY_DSN_PROJECT_ID: string;
   readonly VITE_NODE_ENV: string;
   readonly VITE_GITHUB_HASH: string;
+  readonly VITE_ARWEAVE_HOST: string;
+  readonly VITE_ARNS_SERVICE_API: string;
+  readonly VITE_ARNS_REGISTRY_ADDRESS: string;
 }
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
-}
-
-declare module 'react' {
-  interface InputHTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
-    directory?: boolean | string;
-    webkitdirectory?: boolean | string;
-    mozdirectory?: boolean | string;
-  }
 }

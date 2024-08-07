@@ -51,6 +51,7 @@ function FileInput({
             multiple={multiple}
             onChange={onChange}
             disabled={disabled}
+            // @ts-ignore
             directory=""
             webkitdirectory=""
             mozdirectory=""
